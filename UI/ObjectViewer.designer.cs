@@ -79,6 +79,7 @@
             this.Controls.Add(this.tbFindText);
             this.Controls.Add(this.buttonFindText);
             this.Controls.Add(this.richTbXml);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "ObjectViewer";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
