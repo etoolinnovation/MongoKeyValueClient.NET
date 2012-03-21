@@ -2,21 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
 
-namespace OrangeTech.Orca.Tazzy.SharedCacheClient
+namespace EtoolTech.Mongo.KeyValueClient
 {
     internal class Compression
     {
         internal static byte[] Compress(byte[] data)
         {
-            var ms = new MemoryStream();
-            var ds = new DeflateStream(ms, CompressionMode.Compress);
-            ds.Write(data, 0, data.Length);
-            ds.Flush();
-            ds.Close();
-            return ms.ToArray();
+            using (var ms = new MemoryStream())
+            {
+                var ds = new DeflateStream(ms, CompressionMode.Compress);
+                ds.Write(data, 0, data.Length);
+                ds.Flush();
+                ds.Close();
+                return ms.ToArray();
+            }
         }
 
         internal static byte[] Decompress(byte[] data)
@@ -26,8 +26,11 @@ namespace OrangeTech.Orca.Tazzy.SharedCacheClient
             var tempList = new List<byte[]>();
             int count = 0, length = 0;
 
-            var ms = new MemoryStream(data);
-            var ds = new DeflateStream(ms, CompressionMode.Decompress);
+            DeflateStream ds;
+            using (var ms = new MemoryStream(data))
+            {
+                ds = new DeflateStream(ms, CompressionMode.Decompress);
+            }
 
             while ((count = ds.Read(tempArray, 0, bufferSize)) > 0)
             {

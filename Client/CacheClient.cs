@@ -6,7 +6,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using OrangeTech.Orca.Tazzy.SharedCacheClient;
 
 namespace EtoolTech.Mongo.KeyValueClient
 {
