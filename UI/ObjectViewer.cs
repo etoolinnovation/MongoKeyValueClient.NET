@@ -116,7 +116,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.ToString());
+                        MessageBox.Show(ex.ToString(),"Mongo Cache Client");
                         return string.Empty;
                     }
                 }
@@ -146,7 +146,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             {
                 MessageBox.Show(startindex == 0
                                     ? string.Format("{0} not Finded", tbFindText.Text)
-                                    : string.Format("No more ocurrences of {0} Finded", tbFindText.Text));
+                                    : string.Format("No more ocurrences of {0} Finded", tbFindText.Text), "Mongo Cache Client");
             }
         }
 

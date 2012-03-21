@@ -20,7 +20,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
         private static void ApplicationThreadException(object sender, ThreadExceptionEventArgs e)
         {
-           MessageBox.Show(e.Exception.Message);
+            MessageBox.Show(e.Exception.Message, "Mongo Cache Client");
         }
     }
 }
