@@ -1,0 +1,38 @@
+Dependencies
+
+# Visual Studio artifacts
+bin
+obj
+TestResults
+test-results
+*.user
+*.suo
+*.vsp
+*.csproj.VisualState.xml
+*.docstates
+
+# MonoDevelop artifacts
+*.pidb
+*.userprefs
+test-results
+
+# NUnit artifacts
+TestResult.xml
+
+# Resharper artifacts
+_ReSharper.*
+
+# Sandcastle artifacts
+Help
+*.shfbproj_*
+
+# Vim artifacts
+*.swp
+*~
+
+#Nupkg artifacts
+*.nupkg
+
+
+MongoMapper.NET.sln.docstates
+*.ReSharper

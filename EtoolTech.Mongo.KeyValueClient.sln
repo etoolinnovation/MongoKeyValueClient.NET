@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtoolTech.Mongo.KeyValueClient.UI", "UI\EtoolTech.Mongo.KeyValueClient.UI.csproj", "{AD539C78-E7BF-4FA3-9928-63604CA93D54}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtoolTech.Mongo.KeyValueClient", "Client\EtoolTech.Mongo.KeyValueClient.csproj", "{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD539C78-E7BF-4FA3-9928-63604CA93D54}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{AD539C78-E7BF-4FA3-9928-63604CA93D54}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{AD539C78-E7BF-4FA3-9928-63604CA93D54}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{AD539C78-E7BF-4FA3-9928-63604CA93D54}.Debug|x86.ActiveCfg = Debug|x86
+		{AD539C78-E7BF-4FA3-9928-63604CA93D54}.Debug|x86.Build.0 = Debug|x86
+		{AD539C78-E7BF-4FA3-9928-63604CA93D54}.Release|Any CPU.ActiveCfg = Release|x86
+		{AD539C78-E7BF-4FA3-9928-63604CA93D54}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{AD539C78-E7BF-4FA3-9928-63604CA93D54}.Release|Mixed Platforms.Build.0 = Release|x86
+		{AD539C78-E7BF-4FA3-9928-63604CA93D54}.Release|x86.ActiveCfg = Release|x86
+		{AD539C78-E7BF-4FA3-9928-63604CA93D54}.Release|x86.Build.0 = Release|x86
+		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
