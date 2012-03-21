@@ -30,7 +30,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             using (var ms = new MemoryStream(data))
             {
                 ds = new DeflateStream(ms, CompressionMode.Decompress);
-            }
+            
 
             while ((count = ds.Read(tempArray, 0, bufferSize)) > 0)
             {
@@ -48,6 +48,7 @@ namespace EtoolTech.Mongo.KeyValueClient
                 length += count;
             }
 
+            }
             var retVal = new byte[length];
 
             count = 0;
