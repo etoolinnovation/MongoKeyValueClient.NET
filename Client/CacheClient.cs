@@ -13,9 +13,19 @@ namespace EtoolTech.Mongo.KeyValueClient
     {
         private static readonly string ConnectionString = ConfigurationManager.AppSettings["MongoCacheClient_ConnStr"];
         private static readonly string DataBaseName = ConfigurationManager.AppSettings["MongoCacheClient_Database"];
-        private static readonly string CollectionName = ConfigurationManager.AppSettings["MongoCacheClient_Collection"];
+
+        private static string _collectionName = ConfigurationManager.AppSettings["CompanyKey"] + ConfigurationManager.AppSettings["MongoCacheClient_Collection"];
 
         private static MongoCollection _col;
+
+        public CacheClient(string companyKey = "")
+        {
+            if (!String.IsNullOrEmpty(companyKey))
+            {
+                _collectionName = companyKey + ConfigurationManager.AppSettings["MongoCacheClient_Collection"];
+                _col = null;
+            }
+        }
 
 
         public MongoDatabase Db
@@ -30,7 +40,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         private MongoCollection Collection
         {
-            get { return _col ?? (_col = Db.GetCollection(CollectionName)); }
+            get { return _col ?? (_col = Db.GetCollection(_collectionName)); }
         }
 
         #region ICacheClient Members
