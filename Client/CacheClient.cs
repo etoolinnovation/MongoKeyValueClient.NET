@@ -18,11 +18,11 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         private static MongoCollection _col;
 
-        public CacheClient(string companyKey = "")
+        public CacheClient(string preFix = "")
         {
-            if (!String.IsNullOrEmpty(companyKey))
+            if (!String.IsNullOrEmpty(preFix))
             {
-                _collectionName = companyKey + ConfigurationManager.AppSettings["MongoCacheClient_Collection"];
+                _collectionName = preFix + ConfigurationManager.AppSettings["MongoCacheClient_Collection"];
                 _col = null;
             }
         }
