@@ -8,7 +8,8 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 {
     public partial class MongoCacheStats : Form
     {
-        private CacheClient _cacheClient;
+        private readonly List<object> _col = new List<object>();
+        private Client _client;
 
         public MongoCacheStats()
         {
@@ -20,7 +21,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["PrefixCollection"]))
             {
                 comboCollections.Items.Add(ConfigurationManager.AppSettings["CompanyKey"] +
-                                           ConfigurationManager.AppSettings["MongoCacheClient_Collection"]);
+                                           ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]);
                 comboCollections.SelectedIndex = 0;
             }
             else
@@ -45,14 +46,17 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             try
             {
                 Cursor = Cursors.WaitCursor;
-                _cacheClient = new CacheClient(comboCollections.SelectedItem.ToString());
+                _client = new Client(comboCollections.SelectedItem.ToString());
                 listBoxKeys.Items.Clear();
-                foreach (string key in _cacheClient.GetAllKeys())
+                _col.Clear();
+                foreach (string key in _client.GetAllKeys())
                 {
                     listBoxKeys.Items.Add(key);
+                    _col.Add(key);
                 }
 
                 textBoxFindKey.Text = "";
+
 
                 BuildStats();
             }
@@ -69,25 +73,34 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             text = GetNodes().Aggregate(text, (current, node) => current + (node + " | "));
 
             text += string.Format("Compresion: {0}",
-                                  (ConfigurationManager.AppSettings["MongoCacheClient_CompressionEnabled"] == "1"));
+                                  (ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1"));
 
             text += Environment.NewLine;
             text += string.Format("Keys: {0}", listBoxKeys.Items.Count);
-            text += string.Format(" | Database: {0}", ConfigurationManager.AppSettings["MongoCacheClient_Database"]);
-            text += string.Format(" | Collection: {0}", ConfigurationManager.AppSettings["MongoCacheClient_Collection"]);
+            text += string.Format(" | Database: {0}", ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]);
+            text += string.Format(" | Collection: {0}",
+                                  ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]);
             textBoxStats.Text = text;
         }
 
         private void ButtonFindKeysClick(object sender, EventArgs e)
         {
-            var col = new object[listBoxKeys.Items.Count];
-            listBoxKeys.Items.CopyTo(col, 0);
-            listBoxKeys.Items.Clear();
-
-            foreach (object item in col)
+            if (String.IsNullOrEmpty(textBoxFindKey.Text))
             {
-                if (item.ToString().Contains(textBoxFindKey.Text))
-                    listBoxKeys.Items.Add(item);
+                listBoxKeys.Items.Clear();
+                listBoxKeys.Items.AddRange(_col.ToArray());
+            }
+            else
+            {
+                var col = new object[listBoxKeys.Items.Count];
+                listBoxKeys.Items.CopyTo(col, 0);
+                listBoxKeys.Items.Clear();
+
+                foreach (object item in col)
+                {
+                    if (item.ToString().Contains(textBoxFindKey.Text))
+                        listBoxKeys.Items.Add(item);
+                }
             }
 
             BuildStats();
@@ -100,7 +113,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
         private static IEnumerable<string> GetNodes()
         {
-            string constr = ConfigurationManager.AppSettings["MongoCacheClient_ConnStr"];
+            string constr = ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"];
             constr = constr.Replace("mongodb://", "");
             constr = constr.Substring(0, constr.IndexOf("/", StringComparison.Ordinal));
 
@@ -125,7 +138,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                     foreach (object item in listBoxKeys.Items)
                     {
                         string key = item.ToString();
-                        _cacheClient.Remove(key);
+                        _client.Remove(key);
                     }
 
                     Reset();
@@ -150,7 +163,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                     foreach (object item in listBoxKeys.SelectedItems)
                     {
                         string key = item.ToString();
-                        _cacheClient.Remove(key);
+                        _client.Remove(key);
                     }
 
                     Reset();
@@ -166,6 +179,5 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         {
             Reset();
         }
-
     }
 }

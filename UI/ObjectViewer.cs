@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -27,15 +28,15 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         {
             try
             {
-                this.Cursor = Cursors.WaitCursor;
-                var cacheClient = new CacheClient(Prefix);
+                Cursor = Cursors.WaitCursor;
+                var cacheClient = new Client(Prefix);
                 Text = string.Format("Object Viewer | Key : {0}", Key);
                 tbKey.Text = Key;
                 object data = cacheClient.Get(Key);
 
-                if (System.Configuration.ConfigurationManager.AppSettings["ObjectViewerMode"] == "JSON")
+                if (ConfigurationManager.AppSettings["ObjectViewerMode"] == "JSON")
                 {
-                    this.richTbXml.Text = BeautifyJson(data.ToJson());
+                    richTbXml.Text = BeautifyJson(data.ToJson());
                 }
                 else
                 {
@@ -45,14 +46,14 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             }
             finally
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
             }
         }
 
 
         private string BeautifyJson(string json)
         {
-            var jpp = new JsonPrettyPrinter(new JsonPPStrategyContext());            
+            var jpp = new JsonPrettyPrinter(new JsonPPStrategyContext());
             return jpp.PrettyPrint(json);
         }
 
@@ -63,7 +64,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             richTbXml.AppendText(strTextToAdd);
             string strRtf = richTbXml.Rtf;
             richTbXml.Clear();
-            int iCTableStart = strRtf.IndexOf("colortbl;", System.StringComparison.Ordinal);
+            int iCTableStart = strRtf.IndexOf("colortbl;", StringComparison.Ordinal);
 
             if (iCTableStart != -1)
             {
@@ -76,7 +77,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
             else
             {
-                int iRtfLoc = strRtf.IndexOf("\\rtf", System.StringComparison.Ordinal);
+                int iRtfLoc = strRtf.IndexOf("\\rtf", StringComparison.Ordinal);
                 int iInsertLoc = strRtf.IndexOf('{', iRtfLoc);
 
                 if (iInsertLoc == -1) iInsertLoc = strRtf.IndexOf('}', iRtfLoc) - 1;

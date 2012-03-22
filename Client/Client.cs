@@ -9,20 +9,23 @@ using MongoDB.Driver.Builders;
 
 namespace EtoolTech.Mongo.KeyValueClient
 {
-    public class CacheClient
+    public class Client
     {
-        private static readonly string ConnectionString = ConfigurationManager.AppSettings["MongoCacheClient_ConnStr"];
-        private static readonly string DataBaseName = ConfigurationManager.AppSettings["MongoCacheClient_Database"];
+        private static readonly string ConnectionString =
+            ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"];
 
-        private static string _collectionName = ConfigurationManager.AppSettings["CompanyKey"] + ConfigurationManager.AppSettings["MongoCacheClient_Collection"];
+        private static readonly string DataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
+
+        private static string _collectionName = ConfigurationManager.AppSettings["CompanyKey"] +
+                                                ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
 
         private static MongoCollection _col;
 
-        public CacheClient(string preFix = "")
+        public Client(string preFix = "")
         {
             if (!String.IsNullOrEmpty(preFix))
             {
-                _collectionName = preFix + ConfigurationManager.AppSettings["MongoCacheClient_Collection"];
+                _collectionName = preFix + ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
                 _col = null;
             }
         }
@@ -42,8 +45,6 @@ namespace EtoolTech.Mongo.KeyValueClient
         {
             get { return _col ?? (_col = Db.GetCollection(_collectionName)); }
         }
-
-        #region ICacheClient Members
 
         public bool Ping()
         {
@@ -104,7 +105,8 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             IDictionary<string, object> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
                                                                                                   item =>
-                                                                                                  Serializer.ToObjectSerialize
+                                                                                                  Serializer.
+                                                                                                      ToObjectSerialize
                                                                                                       <object>(item.Data));
 
             foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
@@ -122,10 +124,9 @@ namespace EtoolTech.Mongo.KeyValueClient
             QueryComplete query = Query.Matches("_id", new BsonRegularExpression(pattern));
 
             return collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
-                                                                    item => Serializer.ToObjectSerialize<object>(item.Data));
+                                                                    item =>
+                                                                    Serializer.ToObjectSerialize<object>(item.Data));
         }
-
-        #endregion
 
         public T Get<T>(string key)
         {
@@ -140,9 +141,6 @@ namespace EtoolTech.Mongo.KeyValueClient
             return Serializer.ToObjectSerialize<T>(cacheItems.First().Data);
         }
 
-
-    
-
         #region Nested type: CacheData
 
         [Serializable]
@@ -156,6 +154,4 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         #endregion
     }
-
-  
 }

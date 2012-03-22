@@ -7,8 +7,8 @@ namespace EtoolTech.Mongo.KeyValueClient
 {
     internal class Serializer
     {
-
-        private static readonly bool CompresionEnabled = ConfigurationManager.AppSettings["MongoCacheClient_CompressionEnabled"] == "1";
+        private static readonly bool CompresionEnabled =
+            ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1";
 
         internal static byte[] ToByteArray(Object obj)
         {
@@ -40,7 +40,7 @@ namespace EtoolTech.Mongo.KeyValueClient
                 obj = b.Deserialize(ms);
                 ms.Close();
             }
-            return (T)obj;
+            return (T) obj;
         }
     }
 }
