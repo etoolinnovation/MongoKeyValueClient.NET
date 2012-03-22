@@ -4,6 +4,8 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using JsonPrettyPrinterPlus;
+using JsonPrettyPrinterPlus.JsonPrettyPrinterInternals;
 using ServiceStack.Text;
 
 namespace EtoolTech.Mongo.KeyValueClient.UI
@@ -18,19 +20,28 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             InitializeComponent();
         }
 
-        internal string Key { get; set; }        
+        internal string Key { get; set; }
+        internal string Prefix { get; set; }
 
         private void ObjectViewerLoad(object sender, EventArgs e)
         {
             try
             {
                 this.Cursor = Cursors.WaitCursor;
-                var cacheClient = new CacheClient();
+                var cacheClient = new CacheClient(Prefix);
                 Text = string.Format("Object Viewer | Key : {0}", Key);
                 tbKey.Text = Key;
                 object data = cacheClient.Get(Key);
-                string strdata = data.ToXml();                
-                AddColouredText(IndentXml(strdata));
+
+                if (System.Configuration.ConfigurationManager.AppSettings["ObjectViewerMode"] == "JSON")
+                {
+                    this.richTbXml.Text = BeautifyJson(data.ToJson());
+                }
+                else
+                {
+                    string strdata = data.ToXml();
+                    AddColouredText(IndentXml(strdata));
+                }
             }
             finally
             {
@@ -38,6 +49,12 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             }
         }
 
+
+        private string BeautifyJson(string json)
+        {
+            var jpp = new JsonPrettyPrinter(new JsonPPStrategyContext());            
+            return jpp.PrettyPrint(json);
+        }
 
 
         private void AddColouredText(string strTextToAdd)
@@ -48,13 +65,13 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             richTbXml.Clear();
             int iCTableStart = strRtf.IndexOf("colortbl;", System.StringComparison.Ordinal);
 
-            if (iCTableStart != -1) 
+            if (iCTableStart != -1)
             {
                 int iCTableEnd = strRtf.IndexOf('}', iCTableStart);
                 strRtf = strRtf.Remove(iCTableStart, iCTableEnd - iCTableStart);
 
                 strRtf = strRtf.Insert(iCTableStart,
-                    "colortbl ;\\red255\\green0\\blue0;\\red0\\green128\\blue0;\\red0\\green0\\blue255;}");
+                                       "colortbl ;\\red255\\green0\\blue0;\\red0\\green128\\blue0;\\red0\\green0\\blue255;}");
             }
 
             else
@@ -63,12 +80,12 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                 int iInsertLoc = strRtf.IndexOf('{', iRtfLoc);
 
                 if (iInsertLoc == -1) iInsertLoc = strRtf.IndexOf('}', iRtfLoc) - 1;
-           
+
                 strRtf = strRtf.Insert(iInsertLoc,
-                    "{\\colortbl ;\\red128\\green0\\blue0;\\red0\\green128\\blue0;\\red0\\green0\\blue255;}");
+                                       "{\\colortbl ;\\red128\\green0\\blue0;\\red0\\green128\\blue0;\\red0\\green0\\blue255;}");
             }
 
-         
+
             for (int i = 0; i < strRtf.Length; i++)
             {
                 if (strRtf[i] == '<')
@@ -78,16 +95,16 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                     i += 6;
                 }
                 else if (strRtf[i] == '>')
-                {                    
-                    strRtf = strRtf.Insert(i + 1, "\\cf0 ");                 
+                {
+                    strRtf = strRtf.Insert(i + 1, "\\cf0 ");
                     if (strRtf[i - 1] == '-')
                     {
-                        strRtf = strRtf.Insert(i - 2, "\\cf3 ");                        
+                        strRtf = strRtf.Insert(i - 2, "\\cf3 ");
                         i += 8;
                     }
                     else
                     {
-                        strRtf = strRtf.Insert(i, "\\cf3 ");                        
+                        strRtf = strRtf.Insert(i, "\\cf3 ");
                         i += 6;
                     }
                 }
@@ -98,7 +115,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         private static string IndentXml(string xml)
         {
             using (var memoryStream = new MemoryStream())
-            {               
+            {
                 using (var xmlTextWriter = new XmlTextWriter(memoryStream, Encoding.Unicode))
                 {
                     try
@@ -116,7 +133,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.ToString(),"Mongo Cache Client");
+                        MessageBox.Show(ex.ToString(), "Mongo Cache Client");
                         return string.Empty;
                     }
                 }
@@ -130,14 +147,13 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             if (tbFindText.Text.Length > 0)
                 startindex = FindText(tbFindText.Text.Trim(), _start, richTbXml.Text.Length);
 
-           if (startindex >= 0)
+            if (startindex >= 0)
             {
-               
                 richTbXml.SelectionColor = Color.White;
                 richTbXml.SelectionBackColor = Color.Red;
-                
+
                 int endindex = tbFindText.Text.Length;
-               
+
                 richTbXml.Select(startindex, endindex);
 
                 _start = startindex + endindex;
@@ -146,7 +162,8 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             {
                 MessageBox.Show(startindex == 0
                                     ? string.Format("{0} not Finded", tbFindText.Text)
-                                    : string.Format("No more ocurrences of {0} Finded", tbFindText.Text), "Mongo Cache Client");
+                                    : string.Format("No more ocurrences of {0} Finded", tbFindText.Text),
+                                "Mongo Cache Client");
             }
         }
 

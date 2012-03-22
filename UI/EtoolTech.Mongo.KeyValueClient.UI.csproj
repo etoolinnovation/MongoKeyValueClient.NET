@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JsonPrettyPrinterPlus">
+      <HintPath>..\Dependencies\JsonPrettyPrinterPlus.dll</HintPath>
+    </Reference>
     <Reference Include="ServiceStack.Text">
       <HintPath>..\Dependencies\ServiceStack.Text.dll</HintPath>
     </Reference>
