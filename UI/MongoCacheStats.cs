@@ -17,19 +17,35 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
         private void MongoCacheStatsLoad(object sender, EventArgs e)
         {
-            comboCollections.Items.Add(ConfigurationManager.AppSettings["MongoCacheClient_Collection"]);
-            comboCollections.SelectedIndex = 0;
+            if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["PrefixCollection"]))
+            {
+                comboCollections.Items.Add(ConfigurationManager.AppSettings["CompanyKey"] +
+                                           ConfigurationManager.AppSettings["MongoCacheClient_Collection"]);
+                comboCollections.SelectedIndex = 0;
+            }
+            else
+            {
+                comboCollections.Items.Add("");
+                foreach (
+                    string companyKey in
+                        ConfigurationManager.AppSettings["PrefixCollection"].Split('|'))
+                {
+                    comboCollections.Items.Add(companyKey);
+                }
+                comboCollections.SelectedIndex = 0;
+            }
             Reset();
         }
 
         private void Reset()
         {
-            if (comboCollections.SelectedItem == null || String.IsNullOrEmpty(comboCollections.SelectedItem.ToString())) return;
+            if (comboCollections.SelectedItem == null || String.IsNullOrEmpty(comboCollections.SelectedItem.ToString()))
+                return;
 
             try
             {
                 Cursor = Cursors.WaitCursor;
-                _cacheClient = new CacheClient();
+                _cacheClient = new CacheClient(comboCollections.SelectedItem.ToString());
                 listBoxKeys.Items.Clear();
                 foreach (string key in _cacheClient.GetAllKeys())
                 {
@@ -52,7 +68,8 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             text += "Nodes: ";
             text = GetNodes().Aggregate(text, (current, node) => current + (node + " | "));
 
-            text += string.Format("Compresion: {0}", (ConfigurationManager.AppSettings["MongoCacheClient_CompressionEnabled"] == "1"));
+            text += string.Format("Compresion: {0}",
+                                  (ConfigurationManager.AppSettings["MongoCacheClient_CompressionEnabled"] == "1"));
 
             text += Environment.NewLine;
             text += string.Format("Keys: {0}", listBoxKeys.Items.Count);
@@ -82,7 +99,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         }
 
         private static IEnumerable<string> GetNodes()
-        {            
+        {
             string constr = ConfigurationManager.AppSettings["MongoCacheClient_ConnStr"];
             constr = constr.Replace("mongodb://", "");
             constr = constr.Substring(0, constr.IndexOf("/", StringComparison.Ordinal));
@@ -149,5 +166,6 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         {
             Reset();
         }
+
     }
 }
