@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -42,7 +42,6 @@
       <HintPath>..\Dependencies\ServiceStack.Text.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -52,6 +51,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MongoCacheStats.cs">
@@ -94,12 +94,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Client\EtoolTech.Mongo.KeyValueClient.csproj">
-      <Project>{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}</Project>
-      <Name>EtoolTech.Mongo.KeyValueClient</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
