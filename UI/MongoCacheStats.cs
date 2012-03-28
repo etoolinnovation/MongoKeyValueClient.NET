@@ -11,6 +11,8 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
     {
         private readonly List<object> _col = new List<object>();
         private Client _client;
+        private bool _multiDatabase = false;
+        private readonly Dictionary<string,string> _prefixDatabase = new Dictionary<string, string>();  
 
         public MongoCacheStats()
         {
@@ -19,30 +21,58 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
         private void MongoCacheStatsLoad(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["PrefixCollection"]))
+
+            if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]))
             {
+                _multiDatabase = true;
                 comboCollections.Items.Add("");
-                foreach (string collectionName in MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]).
-                    GetDatabase(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]).GetCollectionNames())
-                {
-                    if (collectionName.EndsWith(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]))
-                        comboCollections.Items.Add(collectionName.Replace(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"],""));
+                var mongoServer = MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]);
+                foreach (string databaseName in mongoServer.GetDatabaseNames())
+                {                    
+                    foreach (string collectionName in mongoServer.GetDatabase(databaseName).GetCollectionNames())
+                    {
+                        if (collectionName.EndsWith(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]))
+                        {
+                            string preFix = collectionName.Replace(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"], "");
+                            comboCollections.Items.Add(preFix);
+                            _prefixDatabase.Add(preFix,databaseName);
+                        }
+                    }
+            
                 }
-                
                 comboCollections.SelectedIndex = 0;
             }
             else
             {
-                comboCollections.Items.Add("");
-                foreach (
-                    string companyKey in
-                        ConfigurationManager.AppSettings["PrefixCollection"].Split('|'))
+                if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["PrefixCollection"]))
                 {
-                    comboCollections.Items.Add(companyKey);
+                    comboCollections.Items.Add("");
+                    foreach (
+                        string collectionName in
+                            MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]).
+                                GetDatabase(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]).
+                                GetCollectionNames())
+                    {
+                        if (collectionName.EndsWith(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]))
+                            comboCollections.Items.Add(
+                                collectionName.Replace(
+                                    ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"], ""));
+                    }
+
+                    comboCollections.SelectedIndex = 0;
                 }
-                comboCollections.SelectedIndex = 0;
-            }
-            Reset();
+                else
+                {
+                    comboCollections.Items.Add("");
+                    foreach (
+                        string companyKey in
+                            ConfigurationManager.AppSettings["PrefixCollection"].Split('|'))
+                    {
+                        comboCollections.Items.Add(companyKey);
+                    }
+                    comboCollections.SelectedIndex = 0;
+                }
+            }            
         }
 
         private void Reset()
@@ -53,6 +83,9 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             try
             {
                 Cursor = Cursors.WaitCursor;
+                if (_multiDatabase)
+                    ConfigurationManager.AppSettings["MongoKeyValueClient_Database"] =
+                        _prefixDatabase[comboCollections.SelectedItem.ToString()];
                 _client = new Client(comboCollections.SelectedItem.ToString());
                 listBoxKeys.Items.Clear();
                 _col.Clear();

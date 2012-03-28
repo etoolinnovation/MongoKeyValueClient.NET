@@ -14,7 +14,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         private static readonly string ConnectionString =
             ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"];
 
-        private static readonly string DataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
+        private static string _dataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
 
         private static string _collectionName = ConfigurationManager.AppSettings["CompanyKey"] +
                                                 ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
@@ -25,6 +25,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         {
             if (!String.IsNullOrEmpty(preFix))
             {
+                 _dataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
                 _collectionName = preFix + ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
                 _col = null;
             }
@@ -33,7 +34,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         public MongoDatabase Db
         {
-            get { return Server.GetDatabase(DataBaseName); }
+            get { return Server.GetDatabase(_dataBaseName); }
         }
 
         private MongoServer Server
