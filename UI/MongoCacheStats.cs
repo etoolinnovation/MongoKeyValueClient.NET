@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Windows.Forms;
+using MongoDB.Driver;
 
 namespace EtoolTech.Mongo.KeyValueClient.UI
 {
@@ -20,8 +21,14 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         {
             if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["PrefixCollection"]))
             {
-                comboCollections.Items.Add(ConfigurationManager.AppSettings["CompanyKey"] +
-                                           ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]);
+                comboCollections.Items.Add("");
+                foreach (string collectionName in MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]).
+                    GetDatabase(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]).GetCollectionNames())
+                {
+                    if (collectionName.EndsWith(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]))
+                        comboCollections.Items.Add(collectionName.Replace(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"],""));
+                }
+                
                 comboCollections.SelectedIndex = 0;
             }
             else
