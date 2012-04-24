@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtoolTech.Mongo.KeyValueCli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtoolTech.Mongo.KeyValueClient", "Client\EtoolTech.Mongo.KeyValueClient.csproj", "{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtoolTech.Mongo.KeyValueClient.Test.NUnit", "EtoolTech.Mongo.KeyValueClient.Test.NUnit\EtoolTech.Mongo.KeyValueClient.Test.NUnit.csproj", "{4BE2E591-F58B-4242-B35F-3AEF02392ABD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,16 @@ Global
 		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}.Release|x86.ActiveCfg = Release|Any CPU
+		{4BE2E591-F58B-4242-B35F-3AEF02392ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BE2E591-F58B-4242-B35F-3AEF02392ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BE2E591-F58B-4242-B35F-3AEF02392ABD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4BE2E591-F58B-4242-B35F-3AEF02392ABD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4BE2E591-F58B-4242-B35F-3AEF02392ABD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4BE2E591-F58B-4242-B35F-3AEF02392ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BE2E591-F58B-4242-B35F-3AEF02392ABD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BE2E591-F58B-4242-B35F-3AEF02392ABD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4BE2E591-F58B-4242-B35F-3AEF02392ABD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4BE2E591-F58B-4242-B35F-3AEF02392ABD}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

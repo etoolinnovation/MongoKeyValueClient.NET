@@ -29,6 +29,7 @@ namespace EtoolTech.Mongo.KeyValueClient
                 _collectionName = preFix + ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
                 _col = null;
             }
+           
         }
 
 

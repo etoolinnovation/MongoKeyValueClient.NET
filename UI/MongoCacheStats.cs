@@ -26,7 +26,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             {
                 _multiDatabase = true;
                 comboCollections.Items.Add("");
-                var mongoServer = MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]);
+                var mongoServer = MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]);                
                 foreach (string databaseName in mongoServer.GetDatabaseNames())
                 {                    
                     foreach (string collectionName in mongoServer.GetDatabase(databaseName).GetCollectionNames())
