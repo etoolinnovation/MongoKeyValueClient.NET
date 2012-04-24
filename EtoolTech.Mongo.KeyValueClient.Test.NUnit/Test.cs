@@ -9,7 +9,8 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
     [TestFixture]
     public class Test
     {
-        public void TestInsert()
+        [Test]
+        public void TestCacheInsert()
         {
             var c = new Client();
             System.Threading.Tasks.Parallel.For(0, 10000, index => c.Add(index.ToString(),index));
