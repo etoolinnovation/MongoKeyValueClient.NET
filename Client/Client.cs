@@ -81,7 +81,11 @@ namespace EtoolTech.Mongo.KeyValueClient
         {
             MongoCollection collection = Collection;
             QueryComplete query = Query.EQ("_id", key);
-            collection.FindAndModify(query, null, Update.Set("Data", Serializer.ToByteArray(data)), false, true);
+            var result = collection.FindAndModify(query, null, Update.Set("Data", Serializer.ToByteArray(data)), false, true);
+			
+			if (!String.IsNullOrEmpty(result.ErrorMessage))
+				throw new Exception(result.ErrorMessage);
+			
             return true;
         }
 
@@ -89,7 +93,11 @@ namespace EtoolTech.Mongo.KeyValueClient
         {
             MongoCollection collection = Collection;
             QueryComplete query = Query.EQ("_id", key);
-            collection.Remove(query, SafeMode.True);
+            var result = collection.Remove(query, SafeMode.True);
+			
+			if (!String.IsNullOrEmpty(result.ErrorMessage))
+				throw new Exception(result.ErrorMessage);
+			
             return true;
         }
 
@@ -104,12 +112,14 @@ namespace EtoolTech.Mongo.KeyValueClient
             MongoCollection collection = Collection;
 
             QueryConditionList query = Query.In("_id", new BsonArray(keyList));
+			
 
             IDictionary<string, object> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
                                                                                                   item =>
                                                                                                   Serializer.
                                                                                                       ToObjectSerialize
                                                                                                       <object>(item.Data));
+			
 
             foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
             {
