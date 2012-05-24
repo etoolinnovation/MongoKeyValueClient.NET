@@ -34,8 +34,11 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                         if (collectionName.EndsWith(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]))
                         {
                             string preFix = collectionName.Replace(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"], "");
-                            comboCollections.Items.Add(preFix);
-                            _prefixDatabase.Add(preFix,databaseName);
+                            if (!_prefixDatabase.ContainsKey(preFix))
+                            {
+                                comboCollections.Items.Add(preFix);
+                                _prefixDatabase.Add(preFix, databaseName);
+                            }
                         }
                     }
             
