@@ -27,12 +27,12 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         private void ObjectViewerLoad(object sender, EventArgs e)
         {
             try
-            {
+            {                                
                 Cursor = Cursors.WaitCursor;
                 var cacheClient = new Client(Prefix);
-                Text = string.Format("Object Viewer | Key : {0}", Key);
+                Text = string.Format("Object Viewer | Key : {0} | Lenght: ", Key);
                 tbKey.Text = Key;
-                object data = cacheClient.Get(Key);
+                object data = cacheClient.Get(Key);                
 
                 if (ConfigurationManager.AppSettings["ObjectViewerMode"] == "JSON")
                 {

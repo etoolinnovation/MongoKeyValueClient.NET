@@ -92,10 +92,19 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                 _client = new Client(comboCollections.SelectedItem.ToString());
                 listBoxKeys.Items.Clear();
                 _col.Clear();
-                foreach (string key in _client.GetAllKeys())
+                foreach (var key in _client.GetAllKeysWithSize())
                 {
-                    listBoxKeys.Items.Add(key);
-                    _col.Add(key);
+                    if (ConfigurationManager.AppSettings["MongoKeyValueClient_ShowSizes"] == "1")
+                    {                        
+                        string nkey = string.Format("{0} # ({1} kb ) #", key.Key, key.Value);
+                        listBoxKeys.Items.Add(nkey);
+                        _col.Add(nkey);                        
+                    }
+                    else
+                    {
+                        listBoxKeys.Items.Add(key);
+                        _col.Add(key);
+                    }
                 }
 
                 textBoxFindKey.Text = "";
@@ -163,10 +172,18 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             string[] servers = constr.Split(',');
             return servers;
         }
+      
 
         private void ListBoxKeysDoubleClick(object sender, EventArgs e)
         {
-            var f = new ObjectViewer {Key = listBoxKeys.SelectedItem.ToString()};
+
+            string key = listBoxKeys.SelectedItem.ToString();            
+            if (key.EndsWith(") #"))
+            {
+                key = key.Substring(0, key.IndexOf("#", System.StringComparison.Ordinal)).Trim();
+            }
+
+            var f = new ObjectViewer {Key = key};
             f.ShowDialog(this);
         }
 

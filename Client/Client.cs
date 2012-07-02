@@ -107,6 +107,19 @@ namespace EtoolTech.Mongo.KeyValueClient
             return collection.FindAllAs<CacheData>().SetFields("_id").ToList().Select(data => data._id).ToList();
         }
 
+        public Dictionary<string,long> GetAllKeysWithSize()
+        {
+            MongoCollection collection = Collection;
+            var result = new Dictionary<string, long>();
+
+            foreach (CacheData cacheData in collection.FindAllAs<CacheData>())
+            {
+                result.Add(cacheData._id, cacheData.Data.LongLength / 1024);
+            }
+
+            return result;
+        }
+
         public IDictionary<string, object> Get(List<string> keyList)
         {
             MongoCollection collection = Collection;
@@ -151,6 +164,40 @@ namespace EtoolTech.Mongo.KeyValueClient
                 return default(T);
 
             return Serializer.ToObjectSerialize<T>(cacheItems.First().Data);
+        }
+
+
+        public long SizeAsKb(string key)
+        {
+            MongoCollection collection = Collection;
+            QueryComplete query = Query.EQ("_id", key);
+            
+
+            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+
+            if (!cacheItems.Any())
+                return 0;
+
+            return cacheItems.First().Data.LongLength / 1024;
+        }
+
+
+        public long DecompressSizeAsKb(string key)
+        {
+            
+            if (ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] != "1")
+                return SizeAsKb(key);
+
+            MongoCollection collection = Collection;
+            QueryComplete query = Query.EQ("_id", key);
+
+
+            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+
+            if (!cacheItems.Any())
+                return 0;
+           
+            return Compression.Decompress(cacheItems.First().Data).LongLength / 1024;
         }
 
         #region Nested type: CacheData
