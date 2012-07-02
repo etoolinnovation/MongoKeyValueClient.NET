@@ -22,8 +22,8 @@ namespace EtoolTech.Mongo.KeyValueClient
         private static MongoCollection _col;
 
         public Client(string preFix = "")
-        {
-            if (!String.IsNullOrEmpty(preFix))
+        {           
+			if (!String.IsNullOrEmpty(preFix))
             {
                  _dataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
                 _collectionName = preFix + ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
