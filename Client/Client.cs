@@ -191,7 +191,6 @@ namespace EtoolTech.Mongo.KeyValueClient
             MongoCollection collection = Collection;
             QueryComplete query = Query.EQ("_id", key);
 
-
             List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
 
             if (!cacheItems.Any())
