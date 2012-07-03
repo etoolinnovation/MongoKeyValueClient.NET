@@ -38,11 +38,18 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
 		 [Test]
         public void TestKeySize()
         {
-			List<string> keys = new List<string>();
-            System.Threading.Tasks.Parallel.For(0, 500000, index => keys.Add("THIS_IS_A_CACHE_KAYE" + index.ToString()));
+			try
+			{
+				List<string> keys = new List<string>();
+            	System.Threading.Tasks.Parallel.For(0, 500000, index => keys.Add("THIS_IS_A_CACHE_KAYE" + index.ToString()));
 
-			var c = new Client();
-			c.Get(keys);
+				var c = new Client();
+				c.Get(keys);
+			}
+			catch(System.IO.FileFormatException)
+			{
+				//ok
+			}
         }
     }
 }
