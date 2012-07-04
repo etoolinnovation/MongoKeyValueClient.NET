@@ -40,8 +40,8 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
         {
 			try
 			{
-				List<string> keys = new List<string>();
-            	System.Threading.Tasks.Parallel.For(0, 500000, index => keys.Add("THIS_IS_A_CACHE_KAYE" + index.ToString()));
+				List<string> keys = new List<string>(5000010);
+            	System.Threading.Tasks.Parallel.For(0, 5000000, index => keys.Add("THIS_IS_A_CACHE_KAYE" + index.ToString()));
 
 				var c = new Client();
 				c.Get(keys);
