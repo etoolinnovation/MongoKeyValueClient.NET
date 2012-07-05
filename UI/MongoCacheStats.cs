@@ -92,19 +92,23 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                 _client = new Client(comboCollections.SelectedItem.ToString());
                 listBoxKeys.Items.Clear();
                 _col.Clear();
+                if (ConfigurationManager.AppSettings["MongoKeyValueClient_ShowSizes"] == "1")
                 foreach (var key in _client.GetAllKeysWithSize())
                 {
-                    if (ConfigurationManager.AppSettings["MongoKeyValueClient_ShowSizes"] == "1")
-                    {                        
+
+                    {
                         string nkey = string.Format("{0} # ({1} kb ) #", key.Key, key.Value);
                         listBoxKeys.Items.Add(nkey);
-                        _col.Add(nkey);                        
+                        _col.Add(nkey);
                     }
-                    else
-                    {
+                }
+                else
+                {
+                foreach(string key in _client.GetAllKeys())
+                {
                         listBoxKeys.Items.Add(key);
                         _col.Add(key);
-                    }
+                }
                 }
 
                 textBoxFindKey.Text = "";
