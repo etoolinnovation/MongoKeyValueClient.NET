@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using NUnit.Framework;
 
 namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
@@ -37,6 +38,7 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
                 c.Remove(key);
             }
 
+            System.Threading.Thread.Sleep(5000);
 
             keys = c.GetAllKeys();
 
@@ -67,6 +69,7 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
                  c.Remove(key);
              }
 
+             System.Threading.Thread.Sleep(5000);
 
              keys = c.GetAllKeys();
 
@@ -97,6 +100,8 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
             }
 
 
+            System.Threading.Thread.Sleep(5000);
+            
             keys = c.GetAllKeys();
 
             Assert.AreEqual(0, keys.Count);
