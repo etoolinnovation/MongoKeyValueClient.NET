@@ -71,11 +71,16 @@ namespace EtoolTech.Mongo.KeyValueClient
                                           server.Settings.SafeMode.FSync);
                     }
                 }
+
                 if (_isReplicaSet == false)
+                {
                     return _col ?? (_col = GetDb().GetCollection(_collectionName));
+                }
                 else
-                    return _primaryCol ?? (_primaryCol = GetDb(_primaryConnectionString).GetCollection(_collectionName));                
-                
+                {
+                    return _primaryCol ?? (_primaryCol = GetDb(_primaryConnectionString).GetCollection(_collectionName));
+                }
+
             }
         }
 
