@@ -10,6 +10,32 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
     public class Test
     {
 
+        [Test]
+        public void TestGetForWrite()
+        {
+            var c = new Client();
+            c.Add("100000", 100000);
+            c.Add("200000", 200000);
+            c.Add("300000", 300000);
+
+            List<string> keys = c.GetAllKeys();
+
+            Assert.AreEqual(3, keys.Count);
+
+            foreach (string key in keys)
+            {
+                var value = c.GetForWrite<int>(key);
+                Assert.AreEqual(key, value.ToString());                
+
+                c.Remove(key);
+            }
+
+
+            keys = c.GetAllKeys();
+
+            Assert.AreEqual(0, keys.Count);
+        }
+
          [Test]
         public void TestCacheAloneInsert()
          {

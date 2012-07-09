@@ -21,6 +21,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         private static MongoCollection _col;
         private static MongoCollection _primaryCol;
+        private static string _primaryConnectionString ;
 
         private static bool? _isReplicaSet = null;
 
@@ -38,9 +39,9 @@ namespace EtoolTech.Mongo.KeyValueClient
         }
 
 
-        public MongoDatabase GetDb()
+        public MongoDatabase GetDb(string connectionString = null)
         {
-            return GetServer().GetDatabase(_dataBaseName);
+            return GetServer(connectionString).GetDatabase(_dataBaseName);
         }
 
         private MongoServer GetServer(string connectionString = null)
@@ -51,6 +52,27 @@ namespace EtoolTech.Mongo.KeyValueClient
         private MongoCollection Collection
         {
             get { return _col ?? (_col = GetDb().GetCollection(_collectionName)); }
+        }
+
+        private MongoCollection PrimaryCollection
+        {
+            get
+            {
+                if (_isReplicaSet == null)
+                {
+                    var server = GetServer();
+                    _isReplicaSet = !String.IsNullOrEmpty(server.ReplicaSetName);
+                    _primaryConnectionString =
+                        String.Format("mongodb://{0}/?maxpoolsize={1};waitQueueTimeout={2};safe={3};fsync={4}",
+                                      server.Primary.Address, server.Settings.MaxConnectionPoolSize,server.Settings.WaitQueueTimeout,server.Settings.SafeMode.Enabled,
+                                      server.Settings.SafeMode.FSync);
+                }
+                if (_isReplicaSet == false)
+                    return _col ?? (_col = GetDb().GetCollection(_collectionName));
+                else
+                    return _primaryCol ?? (_primaryCol = GetDb(_primaryConnectionString).GetCollection(_collectionName));                
+                
+            }
         }
 
         public bool Ping()
@@ -66,6 +88,20 @@ namespace EtoolTech.Mongo.KeyValueClient
             {
                 return false;
             }
+        }
+
+        public object GetForWrite(string key)
+        {
+            MongoCollection collection = PrimaryCollection;
+            QueryComplete query = Query.EQ("_id", key);
+
+            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+
+            if (!cacheItems.Any())
+                return null;
+
+            return Serializer.ToObjectSerialize<object>(cacheItems.First().Data);
+
         }
 
         public object Get(string key)
@@ -161,6 +197,19 @@ namespace EtoolTech.Mongo.KeyValueClient
         public T Get<T>(string key)
         {
             MongoCollection collection = Collection;
+            QueryComplete query = Query.EQ("_id", key);
+
+            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+
+            if (!cacheItems.Any())
+                return default(T);
+
+            return Serializer.ToObjectSerialize<T>(cacheItems.First().Data);
+        }
+
+        public T GetForWrite<T>(string key)
+        {
+            MongoCollection collection = PrimaryCollection;
             QueryComplete query = Query.EQ("_id", key);
 
             List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
