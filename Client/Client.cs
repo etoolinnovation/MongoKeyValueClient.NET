@@ -62,10 +62,14 @@ namespace EtoolTech.Mongo.KeyValueClient
                 {
                     var server = GetServer();
                     _isReplicaSet = !String.IsNullOrEmpty(server.ReplicaSetName);
-                    _primaryConnectionString =
-                        String.Format("mongodb://{0}/?maxpoolsize={1};waitQueueTimeout={2};safe={3};fsync={4}",
-                                      server.Primary.Address, server.Settings.MaxConnectionPoolSize,server.Settings.WaitQueueTimeout,server.Settings.SafeMode.Enabled,
-                                      server.Settings.SafeMode.FSync);
+                    if (_isReplicaSet == true)
+                    {
+                        _primaryConnectionString =
+                            String.Format("mongodb://{0}/?maxpoolsize={1};waitQueueTimeout={2};safe={3};fsync={4}",
+                                          server.Primary.Address, server.Settings.MaxConnectionPoolSize,
+                                          server.Settings.WaitQueueTimeout, server.Settings.SafeMode.Enabled,
+                                          server.Settings.SafeMode.FSync);
+                    }
                 }
                 if (_isReplicaSet == false)
                     return _col ?? (_col = GetDb().GetCollection(_collectionName));
