@@ -20,6 +20,9 @@ namespace EtoolTech.Mongo.KeyValueClient
                                                 ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
 
         private static MongoCollection _col;
+        private static MongoCollection _primaryCol;
+
+        private static bool? _isReplicaSet = null;
 
         public Client(string preFix = "")
         {           
@@ -28,31 +31,33 @@ namespace EtoolTech.Mongo.KeyValueClient
                  _dataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
                 _collectionName = preFix + ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
                 _col = null;
+                _primaryCol = null;
+                _isReplicaSet = null;
             }
            
         }
 
 
-        public MongoDatabase Db
+        public MongoDatabase GetDb()
         {
-            get { return Server.GetDatabase(_dataBaseName); }
+            return GetServer().GetDatabase(_dataBaseName);
         }
 
-        private MongoServer Server
-        {
-            get { return MongoServer.Create(ConnectionString); }
+        private MongoServer GetServer(string connectionString = null)
+        {            
+            return MongoServer.Create(connectionString ?? ConnectionString);
         }
 
         private MongoCollection Collection
         {
-            get { return _col ?? (_col = Db.GetCollection(_collectionName)); }
+            get { return _col ?? (_col = GetDb().GetCollection(_collectionName)); }
         }
 
         public bool Ping()
         {
             try
             {
-                MongoServer s = Server;
+                MongoServer s = GetServer();
                 s.Connect();
                 s.Ping();
                 return true;

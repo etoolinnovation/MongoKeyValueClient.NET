@@ -9,6 +9,32 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
     [TestFixture]
     public class Test
     {
+
+         [Test]
+        public void TestCacheAloneInsert()
+         {
+             var c = new Client();
+             c.Add("Key", 100000);
+
+             List<string> keys = c.GetAllKeys();
+
+             Assert.AreEqual(1, keys.Count);
+
+             foreach (string key in keys)
+             {
+                 var value = c.Get<int>(key);
+                 Assert.AreEqual(key, "Key");
+                 Assert.AreEqual(100000, value);
+
+                 c.Remove(key);
+             }
+
+
+             keys = c.GetAllKeys();
+
+             Assert.AreEqual(0, keys.Count);
+         }
+
         [Test]
         public void TestCacheInsert()
         {
