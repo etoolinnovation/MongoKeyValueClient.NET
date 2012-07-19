@@ -102,7 +102,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         public object GetForWrite(string key)
         {
             MongoCollection collection = PrimaryCollection;
-            QueryComplete query = Query.EQ("_id", key);
+            IMongoQuery query = Query.EQ("_id", key);
 
             List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
 
@@ -116,7 +116,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         public object Get(string key)
         {
             MongoCollection collection = Collection;
-            QueryComplete query = Query.EQ("_id", key);
+            IMongoQuery query = Query.EQ("_id", key);
 
             List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
 
@@ -130,7 +130,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         public bool Add(string key, object data)
         {
             MongoCollection collection = Collection;
-            QueryComplete query = Query.EQ("_id", key);
+            IMongoQuery query = Query.EQ("_id", key);
             var result = collection.FindAndModify(query, null, Update.Set("Data", Serializer.ToByteArray(data)), false, true);
 			
 			if (!String.IsNullOrEmpty(result.ErrorMessage))
@@ -142,7 +142,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         public bool Remove(string key)
         {
             MongoCollection collection = Collection;
-            QueryComplete query = Query.EQ("_id", key);
+            IMongoQuery query = Query.EQ("_id", key);
             var result = collection.Remove(query, SafeMode.True);
 			
 			if (!String.IsNullOrEmpty(result.ErrorMessage))
@@ -174,7 +174,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         {
             MongoCollection collection = Collection;
 
-            QueryConditionList query = Query.In("_id", new BsonArray(keyList));
+            IMongoQuery query = Query.In("_id", new BsonArray(keyList));
 			
 
             IDictionary<string, object> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
@@ -196,7 +196,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         {
             MongoCollection collection = Collection;
 
-            QueryComplete query = Query.Matches("_id", new BsonRegularExpression(pattern));
+            IMongoQuery query = Query.Matches("_id", new BsonRegularExpression(pattern));
 
             return collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
                                                                     item =>
@@ -206,7 +206,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         public T Get<T>(string key)
         {
             MongoCollection collection = Collection;
-            QueryComplete query = Query.EQ("_id", key);
+            IMongoQuery query = Query.EQ("_id", key);
 
             List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
 
@@ -219,7 +219,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         public T GetForWrite<T>(string key)
         {
             MongoCollection collection = PrimaryCollection;
-            QueryComplete query = Query.EQ("_id", key);
+            IMongoQuery query = Query.EQ("_id", key);
 
             List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
 
@@ -233,7 +233,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         public long SizeAsKb(string key)
         {
             MongoCollection collection = Collection;
-            QueryComplete query = Query.EQ("_id", key);
+            IMongoQuery query = Query.EQ("_id", key);
             
 
             List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
@@ -252,7 +252,7 @@ namespace EtoolTech.Mongo.KeyValueClient
                 return SizeAsKb(key);
 
             MongoCollection collection = Collection;
-            QueryComplete query = Query.EQ("_id", key);
+            IMongoQuery query = Query.EQ("_id", key);
 
             List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
 

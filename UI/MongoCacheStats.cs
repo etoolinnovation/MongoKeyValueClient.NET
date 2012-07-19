@@ -95,12 +95,11 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                 if (ConfigurationManager.AppSettings["MongoKeyValueClient_ShowSizes"] == "1")
                 foreach (var key in _client.GetAllKeysWithSize())
                 {
+                  
+                    string nkey = string.Format("{0} # ({1} kb ) #", key.Key, key.Value);
+                    listBoxKeys.Items.Add(nkey);
+                    _col.Add(nkey);                  
 
-                    {
-                        string nkey = string.Format("{0} # ({1} kb ) #", key.Key, key.Value);
-                        listBoxKeys.Items.Add(nkey);
-                        _col.Add(nkey);
-                    }
                 }
                 else
                 {
