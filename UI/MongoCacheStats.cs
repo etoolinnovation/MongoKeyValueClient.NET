@@ -93,21 +93,32 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                 listBoxKeys.Items.Clear();
                 _col.Clear();
                 if (ConfigurationManager.AppSettings["MongoKeyValueClient_ShowSizes"] == "1")
-                foreach (var key in _client.GetAllKeysWithSize())
                 {
-                  
-                    string nkey = string.Format("{0} # ({1} kb ) #", key.Key, key.Value);
-                    listBoxKeys.Items.Add(nkey);
-                    _col.Add(nkey);                  
+                    var keySizes = new Dictionary<string, long>();
+                    foreach (var key in _client.GetAllKeysWithSize())
+                    {
 
+                        string nkey = string.Format("{0} # ({1} kb ) #", key.Key, key.Value);
+                        keySizes.Add(nkey,key.Value);                      
+                    }
+
+                    var items = from pair in keySizes
+                                orderby pair.Value descending 
+                                select pair;
+                    
+                    foreach (KeyValuePair<string, long> keySize in items)
+                    {
+                        listBoxKeys.Items.Add(keySize.Key);
+                        _col.Add(keySize.Key);
+                    }
                 }
                 else
                 {
-                foreach(string key in _client.GetAllKeys())
-                {
+                    foreach (string key in _client.GetAllKeys())
+                    {
                         listBoxKeys.Items.Add(key);
                         _col.Add(key);
-                }
+                    }
                 }
 
                 textBoxFindKey.Text = "";
