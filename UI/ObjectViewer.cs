@@ -29,10 +29,10 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             try
             {                                
                 Cursor = Cursors.WaitCursor;
-                var cacheClient = new Client(Prefix);
-                Text = string.Format("Object Viewer | Key : {0} | Lenght: ", Key);
+                var cacheClient = new Client(Prefix);                
                 tbKey.Text = Key;
-                object data = cacheClient.Get(Key);                
+                object data = cacheClient.Get(Key);
+                Text = string.Format("Object Viewer | Key : {0} | Lenght: ", Key);
 
                 if (ConfigurationManager.AppSettings["ObjectViewerMode"] == "JSON")
                 {
@@ -41,7 +41,10 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                 else
                 {
                     string strdata = data.ToXml();
-                    AddColouredText(IndentXml(strdata));
+                    //AddColouredText(IndentXml(strdata));
+                    IndentXml(strdata);
+                    richTbXml.Clear();
+                    richTbXml.AppendText(strdata);
                 }
             }
             finally
