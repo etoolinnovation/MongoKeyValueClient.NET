@@ -45,7 +45,7 @@
             this.listBoxKeys.Name = "listBoxKeys";
             this.listBoxKeys.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.listBoxKeys.Size = new System.Drawing.Size(898, 472);
-            this.listBoxKeys.TabIndex = 0;            
+            this.listBoxKeys.TabIndex = 0;
             this.listBoxKeys.DoubleClick += new System.EventHandler(this.ListBoxKeysDoubleClick);
             // 
             // buttonRefreshFromServer
@@ -54,7 +54,7 @@
             this.buttonRefreshFromServer.Name = "buttonRefreshFromServer";
             this.buttonRefreshFromServer.Size = new System.Drawing.Size(124, 24);
             this.buttonRefreshFromServer.TabIndex = 1;
-            this.buttonRefreshFromServer.Text = "Refresh from Server";
+            this.buttonRefreshFromServer.Text = "Clear Form";
             this.buttonRefreshFromServer.UseVisualStyleBackColor = true;
             this.buttonRefreshFromServer.Click += new System.EventHandler(this.ButtonRefreshFromServerClick);
             // 

@@ -27,7 +27,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         public Client(string preFix = "")
         {           
-			if (!String.IsNullOrEmpty(preFix))
+            if (!String.IsNullOrEmpty(preFix))
             {
                  _dataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
                 _collectionName = preFix + ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
@@ -132,10 +132,10 @@ namespace EtoolTech.Mongo.KeyValueClient
             MongoCollection collection = Collection;
             IMongoQuery query = Query.EQ("_id", key);
             var result = collection.FindAndModify(query, null, Update.Set("Data", Serializer.ToByteArray(data)), false, true);
-			
-			if (!String.IsNullOrEmpty(result.ErrorMessage))
-				throw new Exception(result.ErrorMessage);
-			
+            
+            if (!String.IsNullOrEmpty(result.ErrorMessage))
+                throw new Exception(result.ErrorMessage);
+            
             return true;
         }
 
@@ -144,10 +144,10 @@ namespace EtoolTech.Mongo.KeyValueClient
             MongoCollection collection = Collection;
             IMongoQuery query = Query.EQ("_id", key);
             var result = collection.Remove(query, SafeMode.True);
-			
-			if (!String.IsNullOrEmpty(result.ErrorMessage))
-				throw new Exception(result.ErrorMessage);
-			
+            
+            if (!String.IsNullOrEmpty(result.ErrorMessage))
+                throw new Exception(result.ErrorMessage);
+            
             return true;
         }
 
@@ -155,6 +155,21 @@ namespace EtoolTech.Mongo.KeyValueClient
         {
             MongoCollection collection = Collection;
             return collection.FindAllAs<CacheData>().SetFields("_id").ToList().Select(data => data._id).ToList();
+        }
+
+
+        public MongoCursor<CacheData> GetAllKeysAsCursor()
+        {
+            MongoCollection collection = Collection;
+            return collection.FindAllAs<CacheData>().SetFields("_id");
+        }
+
+        public MongoCursor<CacheData> GetKeysRegex(string pattern)
+        {
+            MongoCollection collection = Collection;
+
+            IMongoQuery query = Query.Matches("_id", new BsonRegularExpression(pattern));
+            return collection.FindAs<CacheData>(query).SetFields("_id");
         }
 
         public Dictionary<string,long> GetAllKeysWithSize()
@@ -175,14 +190,14 @@ namespace EtoolTech.Mongo.KeyValueClient
             MongoCollection collection = Collection;
 
             IMongoQuery query = Query.In("_id", new BsonArray(keyList));
-			
+            
 
             IDictionary<string, object> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
                                                                                                   item =>
                                                                                                   Serializer.
                                                                                                       ToObjectSerialize
                                                                                                       <object>(item.Data));
-			
+            
 
             foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
             {
@@ -265,7 +280,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         #region Nested type: CacheData
 
         [Serializable]
-        private class CacheData
+        public class CacheData
         {
             [BsonId]
             public string _id { get; set; }

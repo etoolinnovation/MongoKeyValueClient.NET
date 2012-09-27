@@ -8,8 +8,7 @@ using MongoDB.Driver;
 namespace EtoolTech.Mongo.KeyValueClient.UI
 {
     public partial class MongoCacheStats : Form
-    {
-        private readonly List<object> _col = new List<object>();
+    {        
         private Client _client;
         private bool _multiDatabase = false;
         private readonly Dictionary<string,string> _prefixDatabase = new Dictionary<string, string>();  
@@ -86,39 +85,47 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             try
             {
                 Cursor = Cursors.WaitCursor;
-                if (_multiDatabase)
-                    ConfigurationManager.AppSettings["MongoKeyValueClient_Database"] =
-                        _prefixDatabase[comboCollections.SelectedItem.ToString()];
+                if (_multiDatabase) 
+                    ConfigurationManager.AppSettings["MongoKeyValueClient_Database"] = _prefixDatabase[comboCollections.SelectedItem.ToString()];
+
                 _client = new Client(comboCollections.SelectedItem.ToString());
-                listBoxKeys.Items.Clear();
-                _col.Clear();
+                listBoxKeys.Items.Clear();                
+
                 if (ConfigurationManager.AppSettings["MongoKeyValueClient_ShowSizes"] == "1")
                 {
-                    var keySizes = new Dictionary<string, long>();
-                    foreach (var key in _client.GetAllKeysWithSize())
-                    {
+                    //var keySizes = new Dictionary<string, long>();
+                    //foreach (var key in _client.GetAllKeysWithSize())
+                    //{
 
-                        string nkey = string.Format("{0} # ({1} kb ) #", key.Key, key.Value);
-                        keySizes.Add(nkey,key.Value);                      
-                    }
+                    //    string nkey = string.Format("{0} # ({1} kb ) #", key.Key, key.Value);
+                    //    keySizes.Add(nkey,key.Value);                      
+                    //}
 
-                    var items = from pair in keySizes
-                                orderby pair.Value descending 
-                                select pair;
+                    //var items = from pair in keySizes
+                    //            orderby pair.Value descending 
+                    //            select pair;
                     
-                    foreach (KeyValuePair<string, long> keySize in items)
-                    {
-                        listBoxKeys.Items.Add(keySize.Key);
-                        _col.Add(keySize.Key);
-                    }
+                    //foreach (KeyValuePair<string, long> keySize in items)
+                    //{
+                    //    listBoxKeys.Items.Add(keySize.Key);                        
+                    //}
                 }
                 else
                 {
-                    foreach (string key in _client.GetAllKeys())
-                    {
-                        listBoxKeys.Items.Add(key);
-                        _col.Add(key);
-                    }
+                    //int contador = 0;
+                    //var cursor = _client.GetAllKeysAsCursor();
+                    //long total = cursor.Size();
+                    //foreach (var key in cursor)
+                    //{
+                    //    contador++;
+                    //    if (contador == 1000)
+                    //    {
+                    //        contador = 0;
+                    //        Application.DoEvents();
+                    //    }
+
+                    //    listBoxKeys.Items.Add(key._id);                        
+                    //}
                 }
 
                 textBoxFindKey.Text = "";
@@ -151,25 +158,31 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
         private void ButtonFindKeysClick(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(textBoxFindKey.Text))
+            try
             {
-                listBoxKeys.Items.Clear();
-                listBoxKeys.Items.AddRange(_col.ToArray());
-            }
-            else
-            {
-                var col = new object[listBoxKeys.Items.Count];
-                listBoxKeys.Items.CopyTo(col, 0);
-                listBoxKeys.Items.Clear();
+                Cursor = Cursors.WaitCursor;
 
-                foreach (object item in col)
+                if (String.IsNullOrEmpty(textBoxFindKey.Text))
                 {
-                    if (item.ToString().Contains(textBoxFindKey.Text))
-                        listBoxKeys.Items.Add(item);
+                    listBoxKeys.Items.Clear();
                 }
-            }
+                else
+                {
 
-            BuildStats();
+                    var cursor = _client.GetKeysRegex(textBoxFindKey.Text);
+                    foreach (var item in cursor)
+                    {
+                        listBoxKeys.Items.Add(item._id);
+                    }
+                }
+
+
+                BuildStats();
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
         }
 
         private void ButtonRefreshFromServerClick(object sender, EventArgs e)
