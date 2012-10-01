@@ -12,6 +12,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         private Client _client;
         private bool _multiDatabase = false;
         private readonly Dictionary<string,string> _prefixDatabase = new Dictionary<string, string>();  
+        private List<string> _localKeys = new List<string>(); 
 
         public MongoCacheStats()
         {
@@ -157,22 +158,35 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         }
 
         private void ButtonFindKeysClick(object sender, EventArgs e)
-        {
+        {            
             try
             {
                 Cursor = Cursors.WaitCursor;
 
                 if (String.IsNullOrEmpty(textBoxFindKey.Text))
                 {
-                    listBoxKeys.Items.Clear();
+                    listBoxKeys.Items.Clear();                    
                 }
                 else
                 {
-
-                    var cursor = _client.GetKeysRegex(textBoxFindKey.Text);
-                    foreach (var item in cursor)
+                    if (this.localFind.Checked)
                     {
-                        listBoxKeys.Items.Add(item._id);
+                        listBoxKeys.Items.Clear(); 
+                        foreach (var item in _localKeys.Where(k=>k.Contains(textBoxFindKey.Text)))
+                        {
+                            listBoxKeys.Items.Add(item);
+                        }
+                        _localKeys.RemoveAll(k=>!k.Contains(textBoxFindKey.Text));
+                    }
+                    else
+                    {
+                        var cursor = _client.GetKeysRegex(textBoxFindKey.Text);
+                        _localKeys.Clear();
+                        foreach (var item in cursor)
+                        {
+                            listBoxKeys.Items.Add(item._id);                            
+                            _localKeys.Add(item._id);
+                        }
                     }
                 }
 
@@ -187,6 +201,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
         private void ButtonRefreshFromServerClick(object sender, EventArgs e)
         {
+            _localKeys.Clear();
             Reset();
         }
 
