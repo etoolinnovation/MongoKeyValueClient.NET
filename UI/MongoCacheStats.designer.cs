@@ -37,6 +37,7 @@
             this.comboCollections = new System.Windows.Forms.ComboBox();
             this.textBoxStats = new System.Windows.Forms.TextBox();
             this.localFind = new System.Windows.Forms.CheckBox();
+            this.buttonDeleteServerAll = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // listBoxKeys
@@ -55,9 +56,9 @@
             // buttonRefreshFromServer
             // 
             this.buttonRefreshFromServer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonRefreshFromServer.Location = new System.Drawing.Point(772, 12);
+            this.buttonRefreshFromServer.Location = new System.Drawing.Point(820, 12);
             this.buttonRefreshFromServer.Name = "buttonRefreshFromServer";
-            this.buttonRefreshFromServer.Size = new System.Drawing.Size(138, 24);
+            this.buttonRefreshFromServer.Size = new System.Drawing.Size(93, 24);
             this.buttonRefreshFromServer.TabIndex = 1;
             this.buttonRefreshFromServer.Text = "Clear Form";
             this.buttonRefreshFromServer.UseVisualStyleBackColor = true;
@@ -85,20 +86,20 @@
             // buttonDeleteAll
             // 
             this.buttonDeleteAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonDeleteAll.Location = new System.Drawing.Point(620, 12);
+            this.buttonDeleteAll.Location = new System.Drawing.Point(586, 12);
             this.buttonDeleteAll.Name = "buttonDeleteAll";
-            this.buttonDeleteAll.Size = new System.Drawing.Size(138, 24);
+            this.buttonDeleteAll.Size = new System.Drawing.Size(116, 24);
             this.buttonDeleteAll.TabIndex = 4;
-            this.buttonDeleteAll.Text = "Delete All Keys";
+            this.buttonDeleteAll.Text = "Del All Local Keys";
             this.buttonDeleteAll.UseVisualStyleBackColor = true;
             this.buttonDeleteAll.Click += new System.EventHandler(this.ButtonDeleteAllKeysClick);
             // 
             // buttonDeleteSelected
             // 
             this.buttonDeleteSelected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonDeleteSelected.Location = new System.Drawing.Point(468, 12);
+            this.buttonDeleteSelected.Location = new System.Drawing.Point(469, 12);
             this.buttonDeleteSelected.Name = "buttonDeleteSelected";
-            this.buttonDeleteSelected.Size = new System.Drawing.Size(138, 24);
+            this.buttonDeleteSelected.Size = new System.Drawing.Size(116, 24);
             this.buttonDeleteSelected.TabIndex = 5;
             this.buttonDeleteSelected.Text = "Delete Selected";
             this.buttonDeleteSelected.UseVisualStyleBackColor = true;
@@ -138,11 +139,23 @@
             this.localFind.Text = "Local";
             this.localFind.UseVisualStyleBackColor = true;
             // 
+            // buttonDeleteServerAll
+            // 
+            this.buttonDeleteServerAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonDeleteServerAll.Location = new System.Drawing.Point(703, 12);
+            this.buttonDeleteServerAll.Name = "buttonDeleteServerAll";
+            this.buttonDeleteServerAll.Size = new System.Drawing.Size(116, 24);
+            this.buttonDeleteServerAll.TabIndex = 9;
+            this.buttonDeleteServerAll.Text = "Del All Server Keys";
+            this.buttonDeleteServerAll.UseVisualStyleBackColor = true;
+            this.buttonDeleteServerAll.Click += new System.EventHandler(this.buttonDeleteServerAll_Click);
+            // 
             // MongoCacheStats
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(922, 557);
+            this.Controls.Add(this.buttonDeleteServerAll);
             this.Controls.Add(this.localFind);
             this.Controls.Add(this.textBoxStats);
             this.Controls.Add(this.comboCollections);
@@ -174,5 +187,6 @@
         private System.Windows.Forms.ComboBox comboCollections;
         private System.Windows.Forms.TextBox textBoxStats;
         private System.Windows.Forms.CheckBox localFind;
+        private System.Windows.Forms.Button buttonDeleteServerAll;
     }
 }

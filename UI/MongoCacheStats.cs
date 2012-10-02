@@ -94,40 +94,8 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
                 if (ConfigurationManager.AppSettings["MongoKeyValueClient_ShowSizes"] == "1")
                 {
-                    //var keySizes = new Dictionary<string, long>();
-                    //foreach (var key in _client.GetAllKeysWithSize())
-                    //{
-
-                    //    string nkey = string.Format("{0} # ({1} kb ) #", key.Key, key.Value);
-                    //    keySizes.Add(nkey,key.Value);                      
-                    //}
-
-                    //var items = from pair in keySizes
-                    //            orderby pair.Value descending 
-                    //            select pair;
-                    
-                    //foreach (KeyValuePair<string, long> keySize in items)
-                    //{
-                    //    listBoxKeys.Items.Add(keySize.Key);                        
-                    //}
-                }
-                else
-                {
-                    //int contador = 0;
-                    //var cursor = _client.GetAllKeysAsCursor();
-                    //long total = cursor.Size();
-                    //foreach (var key in cursor)
-                    //{
-                    //    contador++;
-                    //    if (contador == 1000)
-                    //    {
-                    //        contador = 0;
-                    //        Application.DoEvents();
-                    //    }
-
-                    //    listBoxKeys.Items.Add(key._id);                        
-                    //}
-                }
+                 
+                }             
 
                 textBoxFindKey.Text = "";
 
@@ -150,7 +118,8 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                                   (ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1"));
 
             text += Environment.NewLine;
-            text += string.Format("Keys: {0}", listBoxKeys.Items.Count);
+            text += string.Format("Server Keys: {0}", _client.GetAllKeysAsCursor().Count());
+            text += string.Format(" | Local Keys: {0}", listBoxKeys.Items.Count);
             text += string.Format(" | Database: {0}", ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]);
             text += string.Format(" | Collection: {0}",
                                   ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]);
@@ -231,7 +200,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
         private void ButtonDeleteAllKeysClick(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Delete all Keys in the Server?", "Mongo Cache Client", MessageBoxButtons.YesNo) ==
+            if (MessageBox.Show("Delete all Keys in the Grid?", "Mongo Cache Client", MessageBoxButtons.YesNo) ==
                 DialogResult.Yes)
             {
                 try
@@ -242,6 +211,26 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                         string key = item.ToString();
                         _client.Remove(key);
                     }
+
+                    Reset();
+                }
+                finally
+                {
+                    Cursor = Cursors.Default;
+                }
+            }
+        }
+
+
+        private void buttonDeleteServerAll_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Delete all Keys in the Server?", "Mongo Cache Client", MessageBoxButtons.YesNo) ==
+              DialogResult.Yes)
+            {
+                try
+                {
+                    Cursor = Cursors.WaitCursor;
+                    _client.RemoveAll();
 
                     Reset();
                 }
@@ -281,5 +270,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         {
             Reset();
         }
+
+    
     }
 }

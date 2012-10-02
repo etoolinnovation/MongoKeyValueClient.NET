@@ -151,6 +151,12 @@ namespace EtoolTech.Mongo.KeyValueClient
             return true;
         }
 
+        public void RemoveAll()
+        {
+            MongoCollection collection = Collection;
+            collection.RemoveAll();
+        }
+
         public List<string> GetAllKeys()
         {
             MongoCollection collection = Collection;
