@@ -4,6 +4,128 @@
         <name>MongoDB.Driver</name>
     </assembly>
     <members>
+        <member name="T:MongoDB.Driver.Internal.DirectMongoServerProxy">
+            <summary>
+            Connects directly to a specified instance, failing over to other addresses as necessary.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.Internal.IMongoServerProxy">
+            <summary>
+            Abstraction for a compositing server instances based on type.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.IMongoServerProxy.ChooseServerInstance(MongoDB.Driver.ReadPreference)">
+            <summary>
+            Chooses the server instance.
+            </summary>
+            <param name="readPreference">The read preference.</param>
+            <returns>A MongoServerInstance.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.IMongoServerProxy.Connect(System.TimeSpan,MongoDB.Driver.ReadPreference)">
+            <summary>
+            Connects to the instances respecting the timeout and readPreference.
+            </summary>
+            <param name="timeout">The timeout.</param>
+            <param name="readPreference">The read preference.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.IMongoServerProxy.Disconnect">
+            <summary>
+            Disconnects the server.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.IMongoServerProxy.Ping">
+            <summary>
+            Checks whether the server is alive (throws an exception if not).
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.IMongoServerProxy.VerifyState">
+            <summary>
+            Verifies the state of the server.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.IMongoServerProxy.BuildInfo">
+            <summary>
+            Gets the build info.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.IMongoServerProxy.ConnectionAttempt">
+            <summary>
+            Gets the connection attempt.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.IMongoServerProxy.Instances">
+            <summary>
+            Gets the instances.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.IMongoServerProxy.State">
+            <summary>
+            Gets the state.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DirectMongoServerProxy.#ctor(MongoDB.Driver.MongoServer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.DirectMongoServerProxy"/> class.
+            </summary>
+            <param name="server">The server.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DirectMongoServerProxy.#ctor(MongoDB.Driver.MongoServer,MongoDB.Driver.MongoServerInstance,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.DirectMongoServerProxy"/> class.
+            </summary>
+            <param name="server">The server.</param>
+            <param name="instance">The instance.</param>
+            <param name="connectionAttempt">The connection attempt.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DirectMongoServerProxy.ChooseServerInstance(MongoDB.Driver.ReadPreference)">
+            <summary>
+            Chooses the server instance.
+            </summary>
+            <param name="readPreference">The read preference.</param>
+            <returns>A MongoServerInstance.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DirectMongoServerProxy.Connect(System.TimeSpan,MongoDB.Driver.ReadPreference)">
+            <summary>
+            Connects to the server respecting the timeout and readPreference.
+            </summary>
+            <param name="timeout">The timeout.</param>
+            <param name="readPreference">The read preference.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DirectMongoServerProxy.Disconnect">
+            <summary>
+            Disconnects from the server.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DirectMongoServerProxy.Ping">
+            <summary>
+            Pings the server.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DirectMongoServerProxy.VerifyState">
+            <summary>
+            Verifies the state of the server.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.DirectMongoServerProxy.BuildInfo">
+            <summary>
+            Gets the build info.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.DirectMongoServerProxy.ConnectionAttempt">
+            <summary>
+            Gets the connection attempt.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.DirectMongoServerProxy.Instances">
+            <summary>
+            Gets the instances.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.DirectMongoServerProxy.State">
+            <summary>
+            Gets the state.
+            </summary>
+        </member>
         <member name="T:MongoDB.Driver.Wrappers.CollectionOptionsWrapper">
             <summary>
             Represents a wrapped object that can be used where an IMongoCollectionOptions is expected (the wrapped object is expected to serialize properly).
@@ -654,10 +776,42 @@
             <param name="name">The name of the element to add to the document.</param>
             <param name="value">The value of the element to add to the document.</param>
         </member>
-        <member name="T:MongoDB.Driver.MongoServerInstance">
+        <member name="T:MongoDB.Driver.MongoServerInstanceType">
             <summary>
             Represents an instance of a MongoDB server host (in the case of a replica set a MongoServer uses multiple MongoServerInstances).
             </summary>
+        </member>
+        <member name="F:MongoDB.Driver.MongoServerInstanceType.Unknown">
+            <summary>
+            The server instance type is unknown.  This is the default.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.MongoServerInstanceType.StandAlone">
+            <summary>
+            The server is a standalone instance.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.MongoServerInstanceType.ReplicaSetMember">
+            <summary>
+            The server is a replica set member.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.MongoServerInstanceType.ShardRouter">
+            <summary>
+            The server is a shard router (mongos).
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.MongoServerInstance">
+            <summary>
+            Represents an instance of a MongoDB server host.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.MongoServerInstance.#ctor(MongoDB.Driver.MongoServer,MongoDB.Driver.MongoServerAddress)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.MongoServerInstance"/> class.
+            </summary>
+            <param name="server">The server.</param>
+            <param name="address">The address.</param>
         </member>
         <member name="M:MongoDB.Driver.MongoServerInstance.GetIPEndPoint">
             <summary>
@@ -675,9 +829,61 @@
             Verifies the state of the server instance.
             </summary>
         </member>
+        <member name="M:MongoDB.Driver.MongoServerInstance.AcquireConnection(MongoDB.Driver.MongoDatabase)">
+            <summary>
+            Acquires the connection.
+            </summary>
+            <param name="database">The database.</param>
+            <returns>A MongoConnection.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.MongoServerInstance.Connect">
+            <summary>
+            Connects this instance.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.MongoServerInstance.Disconnect">
+            <summary>
+            Disconnects this instance.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.MongoServerInstance.DisconnectPermanently">
+            <summary>
+            Disconnects this instance permanently.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.MongoServerInstance.ReleaseConnection(MongoDB.Driver.Internal.MongoConnection)">
+            <summary>
+            Releases the connection.
+            </summary>
+            <param name="connection">The connection.</param>
+        </member>
+        <member name="M:MongoDB.Driver.MongoServerInstance.SetState(MongoDB.Driver.MongoServerState)">
+            <summary>
+            Sets the state.
+            </summary>
+            <param name="state">The state.</param>
+        </member>
+        <member name="M:MongoDB.Driver.MongoServerInstance.SetState(MongoDB.Driver.MongoServerState,MongoDB.Driver.MongoServerInstance.ServerInformation)">
+            <remarks>This method must be called outside of a lock.</remarks>
+        </member>
         <member name="E:MongoDB.Driver.MongoServerInstance.StateChanged">
             <summary>
             Occurs when the value of the State property changes.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.MongoServerInstance.AveragePingTime">
+            <summary>
+            Gets the average ping time.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.MongoServerInstance.ReplicaSetInformation">
+            <summary>
+            Gets the replica set information.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.MongoServerInstance.InstanceType">
+            <summary>
+            Gets the instance type.
             </summary>
         </member>
         <member name="P:MongoDB.Driver.MongoServerInstance.Address">
@@ -748,6 +954,151 @@
         <member name="P:MongoDB.Driver.MongoServerInstance.State">
             <summary>
             Gets the state of this server instance.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.IsMasterResult">
+            <summary>
+            Represents the result of an isMaster command.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.CommandResult">
+            <summary>
+            Represents the result of a command (there are also subclasses for various commands).
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.CommandResult.#ctor">
+            <summary>
+            Initializes a new instance of the CommandResult class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.CommandResult.#ctor(MongoDB.Driver.IMongoCommand,MongoDB.Bson.BsonDocument)">
+            <summary>
+            Initializes a new instance of the CommandResult class.
+            </summary>
+            <param name="command">The command.</param>
+            <param name="response">The response.</param>
+        </member>
+        <member name="M:MongoDB.Driver.CommandResult.Initialize(MongoDB.Driver.IMongoCommand,MongoDB.Bson.BsonDocument)">
+            <summary>
+            Initializes an existing instance of the CommandResult class.
+            </summary>
+            <param name="command">The command.</param>
+            <param name="response">The response.</param>
+        </member>
+        <member name="P:MongoDB.Driver.CommandResult.Command">
+            <summary>
+            Gets the command.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.CommandResult.CommandName">
+            <summary>
+            Gets the command name.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.CommandResult.Response">
+            <summary>
+            Gets the response.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.CommandResult.ErrorMessage">
+            <summary>
+            Gets the error message (null if none).
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.CommandResult.Ok">
+            <summary>
+            Gets the Ok value from the response.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.Arbiters">
+            <summary>
+            Gets the arbiters.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.Hosts">
+            <summary>
+            Gets the hosts.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.IsArbiterOnly">
+            <summary>
+            Gets whether the server is an arbiter.
+            </summary>
+            <value>
+              <c>true</c> if the server is an arbiter; otherwise, <c>false.</c>.
+            </value>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.IsPrimary">
+            <summary>
+            Gets whether the server is the primary.
+            </summary>
+            <value>
+              <c>true</c> if the server is the primary; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.IsPassive">
+            <summary>
+            Gets whether the server is a passive member.
+            </summary>
+            <value>
+              <c>true</c> if the server is a passive member; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.IsSecondary">
+            <summary>
+            Gets whether the server is secondary.
+            </summary>
+            <value>
+              <c>true</c> if the server is secondary; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.MaxBsonObjectSize">
+            <summary>
+            Gets the size of the max bson object.
+            </summary>
+            <value>
+            The size of the max bson object.
+            </value>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.MaxMessageLength">
+            <summary>
+            Gets the length of the max message.
+            </summary>
+            <value>
+            The length of the max message.
+            </value>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.Message">
+            <summary>
+            Gets the message.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.MyAddress">
+            <summary>
+            Gets the name of the instance.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.Passives">
+            <summary>
+            Gets the passives.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.Primary">
+            <summary>
+            Gets the primary.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.ReplicaSetName">
+            <summary>
+            Gets the name of the replica set.
+            </summary>
+            <value>
+            The name of the replica set.
+            </value>
+        </member>
+        <member name="P:MongoDB.Driver.IsMasterResult.Tags">
+            <summary>
+            Gets the tags.
             </summary>
         </member>
         <member name="T:MongoDB.Driver.Builders.Fields">
@@ -1201,7 +1552,7 @@
             Gets the serialization info for the given expression.
             </summary>
             <param name="node">The expression.</param>
-            <returns></returns>
+            <returns>The serialization info.</returns>
         </member>
         <member name="M:MongoDB.Driver.Linq.Utils.BsonSerializationInfoHelper.GetItemSerializationInfo(System.String,MongoDB.Bson.Serialization.BsonSerializationInfo)">
             <summary>
@@ -1233,6 +1584,78 @@
             <param name="serializationInfo">The serialization info.</param>
             <param name="values">The values.</param>
             <returns>A BsonArray representing the values serialized using the serializer.</returns>
+        </member>
+        <member name="T:MongoDB.Driver.ReplicaSetTag">
+            <summary>
+            Represents a replica set tag.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTag.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the ReplicaSetTag class.
+            </summary>
+            <param name="name">The name of the tag.</param>
+            <param name="value">The value of the tag.</param>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTag.op_Inequality(MongoDB.Driver.ReplicaSetTag,MongoDB.Driver.ReplicaSetTag)">
+            <summary>
+            Determines whether two specified ReplicaSetTag objects have different values.
+            </summary>
+            <param name="lhs">The first value to compare, or null.</param>
+            <param name="rhs">The second value to compare, or null.</param>
+            <returns>True if the value of lhs is different from the value of rhs; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTag.op_Equality(MongoDB.Driver.ReplicaSetTag,MongoDB.Driver.ReplicaSetTag)">
+            <summary>
+            Determines whether two specified ReplicaSetTag objects have the same value.
+            </summary>
+            <param name="lhs">The first value to compare, or null.</param>
+            <param name="rhs">The second value to compare, or null.</param>
+            <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTag.Equals(MongoDB.Driver.ReplicaSetTag,MongoDB.Driver.ReplicaSetTag)">
+            <summary>
+            Determines whether two specified ReplicaSetTag objects have the same value.
+            </summary>
+            <param name="lhs">The first value to compare, or null.</param>
+            <param name="rhs">The second value to compare, or null.</param>
+            <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTag.Equals(MongoDB.Driver.ReplicaSetTag)">
+            <summary>
+            Determines whether this instance and another specified ReplicaSetTag object have the same value.
+            </summary>
+            <param name="rhs">The ReplicaSetTag object to compare to this instance.</param>
+            <returns>True if the value of the rhs parameter is the same as this instance; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTag.Equals(System.Object)">
+            <summary>
+            Determines whether this instance and a specified object, which must also be a ReplicaSetTag object, have the same value.
+            </summary>
+            <param name="obj">The ReplicaSetTag object to compare to this instance.</param>
+            <returns>True if obj is a ReplicaSetTag object and its value is the same as this instance; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTag.GetHashCode">
+            <summary>
+            Returns the hash code for this ReplicaSetTag object.
+            </summary>
+            <returns>A 32-bit signed integer hash code.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTag.ToString">
+            <summary>
+            Returns a string representation of the credentials.
+            </summary>
+            <returns>A string representation of the user.</returns>
+        </member>
+        <member name="P:MongoDB.Driver.ReplicaSetTag.Name">
+            <summary>
+            Gets the name of the tag.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.ReplicaSetTag.Value">
+            <summary>
+            Gets the value of the tag.
+            </summary>
         </member>
         <member name="T:MongoDB.Driver.MongoUser">
             <summary>
@@ -1335,55 +1758,6 @@
         <member name="T:MongoDB.Driver.GeoHaystackSearchResult">
             <summary>
             Represents the result of a GeoHaystackSearch command.
-            </summary>
-        </member>
-        <member name="T:MongoDB.Driver.CommandResult">
-            <summary>
-            Represents the result of a command (there are also subclasses for various commands).
-            </summary>
-        </member>
-        <member name="M:MongoDB.Driver.CommandResult.#ctor">
-            <summary>
-            Initializes a new instance of the CommandResult class.
-            </summary>
-        </member>
-        <member name="M:MongoDB.Driver.CommandResult.#ctor(MongoDB.Driver.IMongoCommand,MongoDB.Bson.BsonDocument)">
-            <summary>
-            Initializes a new instance of the CommandResult class.
-            </summary>
-            <param name="command">The command.</param>
-            <param name="response">The response.</param>
-        </member>
-        <member name="M:MongoDB.Driver.CommandResult.Initialize(MongoDB.Driver.IMongoCommand,MongoDB.Bson.BsonDocument)">
-            <summary>
-            Initializes an existing instance of the CommandResult class.
-            </summary>
-            <param name="command">The command.</param>
-            <param name="response">The response.</param>
-        </member>
-        <member name="P:MongoDB.Driver.CommandResult.Command">
-            <summary>
-            Gets the command.
-            </summary>
-        </member>
-        <member name="P:MongoDB.Driver.CommandResult.CommandName">
-            <summary>
-            Gets the command name.
-            </summary>
-        </member>
-        <member name="P:MongoDB.Driver.CommandResult.Response">
-            <summary>
-            Gets the response.
-            </summary>
-        </member>
-        <member name="P:MongoDB.Driver.CommandResult.ErrorMessage">
-            <summary>
-            Gets the error message (null if none).
-            </summary>
-        </member>
-        <member name="P:MongoDB.Driver.CommandResult.Ok">
-            <summary>
-            Gets the Ok value from the response.
             </summary>
         </member>
         <member name="M:MongoDB.Driver.GeoHaystackSearchResult.#ctor">
@@ -2218,6 +2592,11 @@
             Gets the raw BSON document containing the index information.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.IndexInfo.TimeToLive">
+            <summary>
+            Gets the time to live value (or TimeSpan.MaxValue if index doesn't have a time to live value).
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.IndexInfo.Version">
             <summary>
             Gets the version of the index.
@@ -2242,6 +2621,66 @@
             <param name="provider">The MongoDB query provider.</param>
             <param name="expression">The LINQ query expression.</param>
             <returns>A TranslatedQuery.</returns>
+        </member>
+        <member name="T:MongoDB.Driver.Internal.DiscoveringMongoServerProxy">
+            <summary>
+            A proxy that dynamically discovers the type of server it is connecting to.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DiscoveringMongoServerProxy.#ctor(MongoDB.Driver.MongoServer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.DiscoveringMongoServerProxy"/> class.
+            </summary>
+            <param name="server">The server.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DiscoveringMongoServerProxy.ChooseServerInstance(MongoDB.Driver.ReadPreference)">
+            <summary>
+            Chooses the server instance.
+            </summary>
+            <param name="readPreference">The read preference.</param>
+            <returns>A MongoServerInstance</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DiscoveringMongoServerProxy.Connect(System.TimeSpan,MongoDB.Driver.ReadPreference)">
+            <summary>
+            Connects to the instances respecting the timeout and readPreference.
+            </summary>
+            <param name="timeout">The timeout.</param>
+            <param name="readPreference">The read preference.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DiscoveringMongoServerProxy.Disconnect">
+            <summary>
+            Disconnects this instance.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DiscoveringMongoServerProxy.Ping">
+            <summary>
+            Pings this instance.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.DiscoveringMongoServerProxy.VerifyState">
+            <summary>
+            Verifies the state.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.DiscoveringMongoServerProxy.BuildInfo">
+            <summary>
+            Gets the build info.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.DiscoveringMongoServerProxy.ConnectionAttempt">
+            <summary>
+            Gets the connection attempt.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.DiscoveringMongoServerProxy.Instances">
+            <summary>
+            Gets the instances.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.DiscoveringMongoServerProxy.State">
+            <summary>
+            Gets the state.
+            </summary>
         </member>
         <member name="T:MongoDB.Driver.MongoInternalException">
             <summary>
@@ -2268,6 +2707,127 @@
             <param name="info">The SerializationInfo.</param>
             <param name="context">The StreamingContext.</param>
         </member>
+        <member name="T:MongoDB.Driver.ReplicaSetTagSet">
+            <summary>
+            Represents a set of replica set tags.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.#ctor">
+            <summary>
+            Initializes a new instance of the ReplicaSetTagSet class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.#ctor(MongoDB.Driver.ReplicaSetTagSet)">
+            <summary>
+            Initializes a new instance of the ReplicaSetTagSet class.
+            </summary>
+            <param name="other">The other ReplicaSetTagSet.</param>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.op_Inequality(MongoDB.Driver.ReplicaSetTagSet,MongoDB.Driver.ReplicaSetTagSet)">
+            <summary>
+            Determines whether two specified ReplicaSetTagSet objects have different values.
+            </summary>
+            <param name="lhs">The first value to compare, or null.</param>
+            <param name="rhs">The second value to compare, or null.</param>
+            <returns>True if the value of lhs is different from the value of rhs; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.op_Equality(MongoDB.Driver.ReplicaSetTagSet,MongoDB.Driver.ReplicaSetTagSet)">
+            <summary>
+            Determines whether two specified ReplicaSetTagSet objects have the same value.
+            </summary>
+            <param name="lhs">The first value to compare, or null.</param>
+            <param name="rhs">The second value to compare, or null.</param>
+            <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.Equals(MongoDB.Driver.ReplicaSetTagSet,MongoDB.Driver.ReplicaSetTagSet)">
+            <summary>
+            Determines whether two specified ReplicaSetTagSet objects have the same value.
+            </summary>
+            <param name="lhs">The first value to compare, or null.</param>
+            <param name="rhs">The second value to compare, or null.</param>
+            <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.Add(MongoDB.Driver.ReplicaSetTag)">
+            <summary>
+            Adds a tag to the list.
+            </summary>
+            <param name="tag">The tag.</param>
+            <returns>The ReplicaSetTagSet so calls to Add can be chained.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.Add(System.String,System.String)">
+            <summary>
+            Adds a tag to the list.
+            </summary>
+            <param name="name">The name of the tag.</param>
+            <param name="value">The value of the tag.</param>
+            <returns>The ReplicaSetTagSet so calls to Add can be chained.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.Clone">
+            <summary>
+            Creates a clone of the ReplicaSetTagSet.
+            </summary>
+            <returns>A clone of the ReplicaSetTagSet.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.Equals(MongoDB.Driver.ReplicaSetTagSet)">
+            <summary>
+            Determines whether this instance and another specified ReplicaSetTagSet object have the same value.
+            </summary>
+            <param name="rhs">The ReplicaSetTagSet object to compare to this instance.</param>
+            <returns>True if the value of the rhs parameter is the same as this instance; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.Equals(System.Object)">
+            <summary>
+            Determines whether this instance and a specified object, which must also be a ReplicaSetTagSet object, have the same value.
+            </summary>
+            <param name="obj">The ReplicaSetTagSet object to compare to this instance.</param>
+            <returns>True if obj is a ReplicaSetTagSet object and its value is the same as this instance; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.Freeze">
+            <summary>
+            Freezes the ReplicaSetTagSet.
+            </summary>
+            <returns>The frozen ReplicaSetTagSet.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.FrozenCopy">
+            <summary>
+            Returns a frozen copy of the ReplicaSetTagSet.
+            </summary>
+            <returns>A frozen copy of the ReplicaSetTagSet.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.GetHashCode">
+            <summary>
+            Returns the hash code for this ReplicaSetTagSet object.
+            </summary>
+            <returns>A 32-bit signed integer hash code.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.MatchesInstance(MongoDB.Driver.MongoServerInstance)">
+            <summary>
+            Tests whether this tag set matches a server instance.
+            </summary>
+            <param name="instance">The server instance.</param>
+            <returns>True if every tag in this tag set is also in the server instance tag set; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReplicaSetTagSet.ToString">
+            <summary>
+            Returns a string representation of the ReplicaSetTagSet.
+            </summary>
+            <returns>A string representation of the user.</returns>
+        </member>
+        <member name="P:MongoDB.Driver.ReplicaSetTagSet.Count">
+            <summary>
+            Gets a count of the number of tags.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.ReplicaSetTagSet.Tags">
+            <summary>
+            Gets a read-only collection of the tags.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.ReplicaSetTagSet.IsFrozen">
+            <summary>
+            Gets whether the tag set has been frozen to prevent further changes.
+            </summary>
+        </member>
         <member name="T:MongoDB.Driver.MongoServerBuildInfo">
             <summary>
             Represents build info about a server instance.
@@ -2281,6 +2841,13 @@
             <param name="gitVersion">The GIT version.</param>
             <param name="sysInfo">The sysInfo.</param>
             <param name="versionString">The version string.</param>
+        </member>
+        <member name="M:MongoDB.Driver.MongoServerBuildInfo.FromCommandResult(MongoDB.Driver.CommandResult)">
+            <summary>
+            Creates a new instance of MongoServerBuildInfo initialized from the result of a buildinfo command.
+            </summary>
+            <param name="result">A CommandResult.</param>
+            <returns>A MongoServerBuildInfo.</returns>
         </member>
         <member name="P:MongoDB.Driver.MongoServerBuildInfo.Bits">
             <summary>
@@ -2305,6 +2872,21 @@
         <member name="P:MongoDB.Driver.MongoServerBuildInfo.VersionString">
             <summary>
             Gets the version string.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.AggregateResult">
+            <summary>
+            Represents the results of a Aggregate command.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.AggregateResult.#ctor">
+            <summary>
+            Initializes a new instance of the AggregateResult class.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.AggregateResult.ResultDocuments">
+            <summary>
+            Gets the results of the aggregation.
             </summary>
         </member>
         <member name="T:MongoDB.Driver.UpdateFlags">
@@ -2338,6 +2920,20 @@
             </summary>
             <param name="database">The database that contains this collection.</param>
             <param name="settings">The settings to use to access this collection.</param>
+        </member>
+        <member name="M:MongoDB.Driver.MongoCollection.Aggregate(System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonDocument})">
+            <summary>
+            Runs an aggregation framework command.
+            </summary>
+            <param name="operations">The pipeline operations.</param>
+            <returns>An AggregateResult.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.MongoCollection.Aggregate(MongoDB.Bson.BsonDocument[])">
+            <summary>
+            Runs an aggregation framework command.
+            </summary>
+            <param name="operations">The pipeline operations.</param>
+            <returns>An AggregateResult.</returns>
         </member>
         <member name="M:MongoDB.Driver.MongoCollection.Count">
             <summary>
@@ -3482,6 +4078,33 @@
             <param name="collection">The name of the collection.</param>
             <returns>An instance of IQueryable{{T}} for a MongoCollection.</returns>
         </member>
+        <member name="T:MongoDB.Driver.Internal.PingTimeAggregator">
+            <summary>
+            Holds the ping times and a rolling calculated average.  This class is thread-safe.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.PingTimeAggregator.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.PingTimeAggregator"/> class.
+            </summary>
+            <param name="maxCount">The max count.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.PingTimeAggregator.Clear">
+            <summary>
+            Clears this instance.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.PingTimeAggregator.Include(System.TimeSpan)">
+            <summary>
+            Includes the specified ping time in the calculation.  If there are more times in the bucket than the maxCount, then the oldest one is replaced.
+            </summary>
+            <param name="pingTime">The ping time.</param>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.PingTimeAggregator.Average">
+            <summary>
+            Gets the average.
+            </summary>
+        </member>
         <member name="T:MongoDB.Driver.Internal.MongoConnectionState">
             <summary>
             Represents the state of a connection.
@@ -3724,6 +4347,11 @@
             Gets or sets the min connection pool size.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.MongoUrlBuilder.ReadPreference">
+            <summary>
+            Gets or sets the read preference.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.MongoUrlBuilder.ReplicaSetName">
             <summary>
             Gets or sets the name of the replica set.
@@ -3752,6 +4380,16 @@
         <member name="P:MongoDB.Driver.MongoUrlBuilder.SocketTimeout">
             <summary>
             Gets or sets the socket timeout.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.MongoUrlBuilder.UseSsl">
+            <summary>
+            Gets or sets whether to use SSL.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.MongoUrlBuilder.VerifySslCertificate">
+            <summary>
+            Gets or sets whether to verify an SSL certificate.
             </summary>
         </member>
         <member name="P:MongoDB.Driver.MongoUrlBuilder.WaitQueueMultiple">
@@ -4428,6 +5066,7 @@
             <summary>
             A builder for creating update modifiers.
             </summary>
+            <typeparam name="TDocument">The document type.</typeparam>
         </member>
         <member name="M:MongoDB.Driver.Builders.Update`1.AddToSet``1(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.IEnumerable{``0}}},``0)">
             <summary>
@@ -5754,6 +6393,15 @@
             <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
             <returns>A helper object that implements IDisposable and calls <see cref="M:MongoDB.Driver.MongoDatabase.RequestDone"/> from the Dispose method.</returns>
         </member>
+        <member name="M:MongoDB.Driver.MongoDatabase.RequestStart(MongoDB.Driver.ReadPreference)">
+            <summary>
+            Lets the server know that this thread is about to begin a series of related operations that must all occur
+            on the same connection. The return value of this method implements IDisposable and can be placed in a
+            using statement (in which case RequestDone will be called automatically when leaving the using statement).
+            </summary>
+            <param name="readPreference">The read preference.</param>
+            <returns>A helper object that implements IDisposable and calls <see cref="M:MongoDB.Driver.MongoDatabase.RequestDone"/> from the Dispose method.</returns>
+        </member>
         <member name="M:MongoDB.Driver.MongoDatabase.ResetIndexCache">
             <summary>
             Removes all entries for this database in the index cache used by EnsureIndex. Call this method
@@ -5999,6 +6647,18 @@
             Gets or sets whether to verify the MD5 hash when a file is uploaded or downloaded.
             </summary>
         </member>
+        <member name="T:MongoDB.Driver.Internal.MongoServerProxyFactory">
+            <summary>
+            Creates a MongoServerInstanceManager based on the settings.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MongoServerProxyFactory.Create(MongoDB.Driver.MongoServer)">
+            <summary>
+            Creates an IMongoServerProxy of some type that depends on the server settings.
+            </summary>
+            <param name="server">The server.</param>
+            <returns>An IMongoServerProxy.</returns>
+        </member>
         <member name="T:MongoDB.Driver.GridFS.MongoGridFSException">
             <summary>
             Represents a MongoDB GridFS exception.
@@ -6031,8 +6691,14 @@
         </member>
         <member name="M:MongoDB.Driver.SystemProfileInfo.#ctor">
             <summary>
-            Initializes a new instance of the SystemProfileInfo class.
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.SystemProfileInfo"/> class.
             </summary>
+        </member>
+        <member name="M:MongoDB.Driver.SystemProfileInfo.#ctor(MongoDB.Bson.BsonDocument)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.SystemProfileInfo"/> class.
+            </summary>
+            <param name="backingDocument">The backing document.</param>
         </member>
         <member name="P:MongoDB.Driver.SystemProfileInfo.Abbreviated">
             <summary>
@@ -6104,6 +6770,11 @@
             Gets or sets the number of key updates.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.SystemProfileInfo.LockStatistics">
+            <summary>
+            Gets or sets the lock statistics.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.SystemProfileInfo.Moved">
             <summary>
             Gets or sets whether moved was true.
@@ -6134,6 +6805,11 @@
             Gets or sets the number of documents to skip.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.SystemProfileInfo.NumberOfYields">
+            <summary>
+            Gets or sets the number of yields.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.SystemProfileInfo.Op">
             <summary>
             Gets or sets the operation.
@@ -6142,6 +6818,11 @@
         <member name="P:MongoDB.Driver.SystemProfileInfo.Query">
             <summary>
             Gets or sets the query.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.SystemProfileInfo.RawDocument">
+            <summary>
+            Gets the raw document.
             </summary>
         </member>
         <member name="P:MongoDB.Driver.SystemProfileInfo.ResponseLength">
@@ -6174,36 +6855,133 @@
             Gets or sets the user.
             </summary>
         </member>
+        <member name="T:MongoDB.Driver.SystemProfileLockStatistics">
+            <summary>
+            Statistics about locks for a system.profile document.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.SystemProfileLockStatistics.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.SystemProfileLockStatistics"/> class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.SystemProfileLockStatistics.#ctor(MongoDB.Bson.BsonDocument)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.SystemProfileLockStatistics"/> class.
+            </summary>
+            <param name="backingDocument">The backing document.</param>
+        </member>
+        <member name="P:MongoDB.Driver.SystemProfileLockStatistics.RawDocument">
+            <summary>
+            Gets the raw document.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.SystemProfileLockStatistics.TimeAcquiring">
+            <summary>
+            Gets or sets the time acquiring.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.SystemProfileLockStatistics.TimeLocked">
+            <summary>
+            Gets or sets the time locked.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.SystemProfileReadWriteLockStatistics">
+            <summary>
+            Statistics about system.profile read and write time spent in locks.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.SystemProfileReadWriteLockStatistics.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.SystemProfileReadWriteLockStatistics"/> class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.SystemProfileReadWriteLockStatistics.#ctor(MongoDB.Bson.BsonDocument)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.SystemProfileReadWriteLockStatistics"/> class.
+            </summary>
+            <param name="backingDocument">The backing document.</param>
+        </member>
+        <member name="P:MongoDB.Driver.SystemProfileReadWriteLockStatistics.RawDocument">
+            <summary>
+            Gets the raw document.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.SystemProfileReadWriteLockStatistics.Read">
+            <summary>
+            Gets or sets the time spent for a read.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.SystemProfileReadWriteLockStatistics.Write">
+            <summary>
+            Gets or sets the time spent for a write.
+            </summary>
+        </member>
         <member name="T:MongoDB.Driver.SystemProfileInfoSerializer">
             <summary>
             Represents a serializer for SystemProfileInfo.
             </summary>
         </member>
-        <member name="M:MongoDB.Driver.SystemProfileInfoSerializer.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+        <member name="M:MongoDB.Driver.SystemProfileInfoSerializer.#ctor">
             <summary>
-            Deserializes an object from a BsonReader.
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.SystemProfileInfoSerializer"/> class.
             </summary>
-            <param name="bsonReader">The BsonReader.</param>
-            <param name="nominalType">The nominal type of the object.</param>
-            <param name="actualType">The actual type of the object.</param>
-            <param name="options">The serialization options.</param>
-            <returns>An object.</returns>
         </member>
-        <member name="M:MongoDB.Driver.SystemProfileInfoSerializer.GetMemberSerializationInfo(System.String)">
+        <member name="M:MongoDB.Driver.SystemProfileInfoSerializer.CreateInstance(MongoDB.Bson.BsonDocument)">
             <summary>
-            Gets the serialization info for a member.
+            Creates the instance.
             </summary>
-            <param name="memberName">The member name.</param>
-            <returns>The serialization info for the member.</returns>
+            <param name="backingDocument">The backing document.</param>
+            <returns>A SystemProfileInfo instance.</returns>
         </member>
-        <member name="M:MongoDB.Driver.SystemProfileInfoSerializer.Serialize(MongoDB.Bson.IO.BsonWriter,System.Type,System.Object,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+        <member name="P:MongoDB.Driver.SystemProfileInfoSerializer.Instance">
             <summary>
-            Serializes an object to a BsonWriter.
+            Gets the instance.
             </summary>
-            <param name="bsonWriter">The BsonWriter.</param>
-            <param name="nominalType">The nominal type.</param>
-            <param name="value">The object.</param>
-            <param name="options">The serialization options.</param>
+        </member>
+        <member name="T:MongoDB.Driver.SystemProfileLockStatisticsSerializer">
+            <summary>
+            Serializer for SystemProfileLockStatistics
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.SystemProfileLockStatisticsSerializer.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.SystemProfileLockStatisticsSerializer"/> class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.SystemProfileLockStatisticsSerializer.CreateInstance(MongoDB.Bson.BsonDocument)">
+            <summary>
+            Creates the instance.
+            </summary>
+            <param name="backingDocument">The backing document.</param>
+            <returns>A SystemProfileLockStatistics instance.</returns>
+        </member>
+        <member name="P:MongoDB.Driver.SystemProfileLockStatisticsSerializer.Instance">
+            <summary>
+            Gets the instance.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.SystemProfileReadWriteLockStatisticsSerializer">
+            <summary>
+            Serializer for SystemProfileReadWriteLockStatistics
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.SystemProfileReadWriteLockStatisticsSerializer.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.SystemProfileReadWriteLockStatisticsSerializer"/> class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.SystemProfileReadWriteLockStatisticsSerializer.CreateInstance(MongoDB.Bson.BsonDocument)">
+            <summary>
+            Creates the instance.
+            </summary>
+            <param name="backingDocument">The backing document.</param>
+            <returns>A SystemProfileReadWriteLockStatistics instance.</returns>
+        </member>
+        <member name="P:MongoDB.Driver.SystemProfileReadWriteLockStatisticsSerializer.Instance">
+            <summary>
+            Gets the instance.
+            </summary>
         </member>
         <member name="T:MongoDB.Driver.MongoCollectionSettings">
             <summary>
@@ -6218,7 +6996,7 @@
             <param name="collectionName">The name of the collection.</param>
             <param name="defaultDocumentType">The default document type for the collection.</param>
         </member>
-        <member name="M:MongoDB.Driver.MongoCollectionSettings.#ctor(System.String,System.Boolean,System.Type,MongoDB.Bson.GuidRepresentation,MongoDB.Driver.SafeMode,System.Boolean)">
+        <member name="M:MongoDB.Driver.MongoCollectionSettings.#ctor(System.String,System.Boolean,System.Type,MongoDB.Bson.GuidRepresentation,MongoDB.Driver.ReadPreference,MongoDB.Driver.SafeMode)">
             <summary>
             Initializes a new instance of the MongoCollectionSettings class.
             </summary>
@@ -6226,8 +7004,8 @@
             <param name="assignIdOnInsert">Whether to automatically assign a value to an empty document Id on insert.</param>
             <param name="defaultDocumentType">The default document type for the collection.</param>
             <param name="guidRepresentation">The GUID representation to use with this collection.</param>
+            <param name="readPreference">The read preference.</param>
             <param name="safeMode">The SafeMode to use with this collection.</param>
-            <param name="slaveOk">Whether to route reads to secondaries for this collection.</param>
         </member>
         <member name="M:MongoDB.Driver.MongoCollectionSettings.Clone">
             <summary>
@@ -6291,6 +7069,11 @@
             Gets whether the settings have been frozen to prevent further changes.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.MongoCollectionSettings.ReadPreference">
+            <summary>
+            Gets or sets the read preference to use.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.MongoCollectionSettings.SafeMode">
             <summary>
             Gets or sets the SafeMode to use.
@@ -6314,41 +7097,21 @@
             <param name="database">The database to inherit settings from.</param>
             <param name="collectionName">The name of the collection.</param>
         </member>
-        <member name="M:MongoDB.Driver.MongoCollectionSettings`1.#ctor(System.String,System.Boolean,MongoDB.Bson.GuidRepresentation,MongoDB.Driver.SafeMode,System.Boolean)">
+        <member name="M:MongoDB.Driver.MongoCollectionSettings`1.#ctor(System.String,System.Boolean,MongoDB.Bson.GuidRepresentation,MongoDB.Driver.ReadPreference,MongoDB.Driver.SafeMode)">
             <summary>
             Creates a new instance of MongoCollectionSettings.
             </summary>
             <param name="collectionName">The name of the collection.</param>
             <param name="assignIdOnInsert">Whether the driver should assign the Id values if necessary.</param>
             <param name="guidRepresentation">The representation for Guids.</param>
+            <param name="readPreference">The read preference.</param>
             <param name="safeMode">The safe mode to use.</param>
-            <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         </member>
         <member name="M:MongoDB.Driver.MongoCollectionSettings`1.Clone">
             <summary>
             Creates a clone of the settings.
             </summary>
             <returns>A clone of the settings.</returns>
-        </member>
-        <member name="T:MongoDB.Driver.ConnectWaitFor">
-            <summary>
-            Used with the Connect method when connecting to a replica set to specify what subset of the replica set must be connected before returning.
-            </summary>
-        </member>
-        <member name="F:MongoDB.Driver.ConnectWaitFor.All">
-            <summary>
-            Wait for all members of the replica set to be connected.
-            </summary>
-        </member>
-        <member name="F:MongoDB.Driver.ConnectWaitFor.Primary">
-            <summary>
-            Wait for the primary member of the replica set to be connected.
-            </summary>
-        </member>
-        <member name="F:MongoDB.Driver.ConnectWaitFor.AnySlaveOk">
-            <summary>
-            Wait for any slaveOk member of the replica set to be connected (primary or any secondary).
-            </summary>
         </member>
         <member name="T:MongoDB.Driver.SafeModeResult">
             <summary>
@@ -6601,7 +7364,7 @@
             <summary>
             Tests that an element does not equal the value (see $ne).
             </summary>
-            <typeparam name="TMember"></typeparam>
+            <typeparam name="TMember">The member type.</typeparam>
             <param name="memberExpression">The member expression.</param>
             <param name="value">The value.</param>
             <returns>An IMongoQuery.</returns>
@@ -6960,13 +7723,13 @@
             Tests that the inverse of the query is true (see $not).
             </summary>
             <param name="query">The query.</param>
-            <returns></returns>
+            <returns>An IMongoQuery.</returns>
         </member>
         <member name="M:MongoDB.Driver.Builders.QueryBuilder`1.NE``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
             <summary>
             Tests that an element does not equal the value (see $ne).
             </summary>
-            <typeparam name="TMember"></typeparam>
+            <typeparam name="TMember">The member type.</typeparam>
             <param name="memberExpression">The member expression.</param>
             <param name="value">The value.</param>
             <returns>An IMongoQuery.</returns>
@@ -7342,20 +8105,22 @@
             to the server until you begin enumerating the results.
             </summary>
         </member>
-        <member name="M:MongoDB.Driver.MongoCursor.#ctor(MongoDB.Driver.MongoCollection,MongoDB.Driver.IMongoQuery)">
+        <member name="M:MongoDB.Driver.MongoCursor.#ctor(MongoDB.Driver.MongoCollection,MongoDB.Driver.IMongoQuery,MongoDB.Driver.ReadPreference)">
             <summary>
             Creates a new MongoCursor. It is very unlikely that you will call this constructor. Instead, see all the Find methods in MongoCollection.
             </summary>
             <param name="collection">The collection.</param>
             <param name="query">The query.</param>
+            <param name="readPreference">The read preference.</param>
         </member>
-        <member name="M:MongoDB.Driver.MongoCursor.Create(System.Type,MongoDB.Driver.MongoCollection,MongoDB.Driver.IMongoQuery)">
+        <member name="M:MongoDB.Driver.MongoCursor.Create(System.Type,MongoDB.Driver.MongoCollection,MongoDB.Driver.IMongoQuery,MongoDB.Driver.ReadPreference)">
             <summary>
             Creates a cursor.
             </summary>
             <param name="documentType">The type of the returned documents.</param>
             <param name="collection">The collection to query.</param>
             <param name="query">A query.</param>
+            <param name="readPreference">The read preference.</param>
             <returns>A cursor.</returns>
         </member>
         <member name="M:MongoDB.Driver.MongoCursor.Clone``1">
@@ -7478,6 +8243,13 @@
             <param name="options">The options.</param>
             <returns>The cursor (so you can chain method calls to it).</returns>
         </member>
+        <member name="M:MongoDB.Driver.MongoCursor.SetReadPreference(MongoDB.Driver.ReadPreference)">
+            <summary>
+            Sets the read preference.
+            </summary>
+            <param name="readPreference">The read preference.</param>
+            <returns>The cursor (so you can chain method calls to it).</returns>
+        </member>
         <member name="M:MongoDB.Driver.MongoCursor.SetSerializationOptions(MongoDB.Bson.Serialization.IBsonSerializationOptions)">
             <summary>
             Sets the serialization options (only needed in rare cases).
@@ -7502,7 +8274,7 @@
             <summary>
             Sets whether the query should be sent to a secondary server.
             </summary>
-            <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
+            <param name="slaveOk">Whether the query can be sent to a secondary server.</param>
             <returns>The cursor (so you can chain method calls to it).</returns>
         </member>
         <member name="M:MongoDB.Driver.MongoCursor.SetSnapshot">
@@ -7572,9 +8344,14 @@
             Gets or sets the query flags.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.MongoCursor.ReadPreference">
+            <summary>
+            Gets or sets the read preference.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.MongoCursor.SlaveOk">
             <summary>
-            Gets or sets whether the query should be sent to a secondary server.
+            Gets or sets whether the query can be sent to a secondary server.
             </summary>
         </member>
         <member name="P:MongoDB.Driver.MongoCursor.Skip">
@@ -7609,12 +8386,13 @@
             </summary>
             <typeparam name="TDocument">The type of the documents returned.</typeparam>
         </member>
-        <member name="M:MongoDB.Driver.MongoCursor`1.#ctor(MongoDB.Driver.MongoCollection,MongoDB.Driver.IMongoQuery)">
+        <member name="M:MongoDB.Driver.MongoCursor`1.#ctor(MongoDB.Driver.MongoCollection,MongoDB.Driver.IMongoQuery,MongoDB.Driver.ReadPreference)">
             <summary>
             Creates a new MongoCursor. It is very unlikely that you will call this constructor. Instead, see all the Find methods in MongoCollection.
             </summary>
             <param name="collection">The collection.</param>
             <param name="query">The query.</param>
+            <param name="readPreference">The read preference.</param>
         </member>
         <member name="M:MongoDB.Driver.MongoCursor`1.GetEnumerator">
             <summary>
@@ -7708,6 +8486,13 @@
             Sets multiple cursor options. See also the individual Set{Option} methods, which are easier to use.
             </summary>
             <param name="options">The options.</param>
+            <returns>The cursor (so you can chain method calls to it).</returns>
+        </member>
+        <member name="M:MongoDB.Driver.MongoCursor`1.SetReadPreference(MongoDB.Driver.ReadPreference)">
+            <summary>
+            Sets the read preference.
+            </summary>
+            <param name="readPreference">The read preference.</param>
             <returns>The cursor (so you can chain method calls to it).</returns>
         </member>
         <member name="M:MongoDB.Driver.MongoCursor`1.SetSerializationOptions(MongoDB.Bson.Serialization.IBsonSerializationOptions)">
@@ -7932,6 +8717,119 @@
             </summary>
             <param name="node">The UnaryExpression.</param>
             <returns>The UnaryExpression.</returns>
+        </member>
+        <member name="T:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy">
+            <summary>
+            Base class for proxies that maintain multiple server instances.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.#ctor(MongoDB.Driver.MongoServer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.ShardedMongoServerProxy"/> class.
+            </summary>
+            <param name="server">The server.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.#ctor(MongoDB.Driver.MongoServer,System.Collections.Generic.IEnumerable{MongoDB.Driver.MongoServerInstance},MongoDB.Driver.Internal.BlockingQueue{MongoDB.Driver.MongoServerInstance},System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.ShardedMongoServerProxy"/> class.
+            </summary>
+            <param name="server">The server.</param>
+            <param name="instances">The instances.</param>
+            <param name="connectionQueue">The state change queue.</param>
+            <param name="connectionAttempt">The connection attempt.</param>
+            <remarks>This constructor is used when the instances have already been instructed to connect.</remarks>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.ChooseServerInstance(MongoDB.Driver.ReadPreference)">
+            <summary>
+            Chooses the server instance.
+            </summary>
+            <param name="readPreference">The read preference.</param>
+            <returns>A MongoServerInstance.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.Connect(System.TimeSpan,MongoDB.Driver.ReadPreference)">
+            <summary>
+            Connects to the instances respecting the timeout and readPreference.
+            </summary>
+            <param name="timeout">The timeout.</param>
+            <param name="readPreference">The read preference.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.Disconnect">
+            <summary>
+            Disconnects the server.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.Ping">
+            <summary>
+            Checks whether the server is alive (throws an exception if not).
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.VerifyState">
+            <summary>
+            Verifies the state of the server.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.ChooseServerInstance(MongoDB.Driver.Internal.ConnectedInstanceCollection,MongoDB.Driver.ReadPreference)">
+            <summary>
+            Chooses the server instance.
+            </summary>
+            <param name="connectedInstances">The connected instances.</param>
+            <param name="readPreference">The read preference.</param>
+            <returns>A MongoServerInstance.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.DetermineServerState(MongoDB.Driver.MongoServerState,System.Collections.Generic.IEnumerable{MongoDB.Driver.MongoServerInstance})">
+            <summary>
+            Determines the state of the server.
+            </summary>
+            <param name="currentState">State of the current.</param>
+            <param name="instances">The instances.</param>
+            <returns>The state of the server.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.EnsureInstanceWithAddress(MongoDB.Driver.MongoServerAddress)">
+            <summary>
+            Ensures that an instance with the address exists.
+            </summary>
+            <param name="address">The address.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.IsValidInstance(MongoDB.Driver.MongoServerInstance)">
+            <summary>
+            Determines whether the instance is a valid.  If not, the instance is removed.
+            </summary>
+            <param name="instance">The instance.</param>
+            <returns>
+              <c>true</c> if the instance is valid; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.MakeInstancesMatchAddresses(System.Collections.Generic.IEnumerable{MongoDB.Driver.MongoServerAddress})">
+            <summary>
+            Ensures that the current instance list has all the addresses provided and does not contain any not provided.
+            </summary>
+            <param name="addresses">The addresses.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.ProcessConnectedInstanceStateChange(MongoDB.Driver.MongoServerInstance)">
+            <summary>
+            Processes the connected instance state change.
+            </summary>
+            <param name="instance">The instance.</param>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.BuildInfo">
+            <summary>
+            Gets the build info.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.ConnectionAttempt">
+            <summary>
+            Gets the connection attempt.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.Instances">
+            <summary>
+            Gets the instances.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.MultipleInstanceMongoServerProxy.State">
+            <summary>
+            Gets the state.
+            </summary>
         </member>
         <member name="T:MongoDB.Driver.SafeMode">
             <summary>
@@ -8294,6 +9192,187 @@
             <param name="options">The wrapped object.</param>
             <returns>A new instance of IndexOptionsWrapper or null.</returns>
         </member>
+        <member name="T:MongoDB.Driver.ReadPreferenceMode">
+            <summary>
+            Represents read preference modes.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.ReadPreferenceMode.Primary">
+            <summary>
+            Use primary only.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.ReadPreferenceMode.PrimaryPreferred">
+            <summary>
+            Use primary if possible, otherwise a secondary.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.ReadPreferenceMode.Secondary">
+            <summary>
+            Use secondary only.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.ReadPreferenceMode.SecondaryPreferred">
+            <summary>
+            Use a secondary if possible, otherwise primary.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.ReadPreferenceMode.Nearest">
+            <summary>
+            Use any near by server, primary or secondary.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.ReadPreference">
+            <summary>
+            Represents read preferences.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.#ctor">
+            <summary>
+            Initializes a new instance of the ReadPreference class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.#ctor(MongoDB.Driver.ReadPreference)">
+            <summary>
+            Initializes a new instance of the ReadPreference class.
+            </summary>
+            <param name="readPreference">A read preference</param>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.#ctor(MongoDB.Driver.ReadPreferenceMode)">
+            <summary>
+            Initializes a new instance of the ReadPreference class.
+            </summary>
+            <param name="readPreferenceMode">The read preference mode.</param>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.#ctor(MongoDB.Driver.ReadPreferenceMode,System.Collections.Generic.IEnumerable{MongoDB.Driver.ReplicaSetTagSet})">
+            <summary>
+            Initializes a new instance of the ReadPreference class.
+            </summary>
+            <param name="readPreferenceMode">The read preference mode.</param>
+            <param name="tagSets">The tag sets.</param>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.op_Inequality(MongoDB.Driver.ReadPreference,MongoDB.Driver.ReadPreference)">
+            <summary>
+            Determines whether two specified ReadPreference objects have different values.
+            </summary>
+            <param name="lhs">The first value to compare, or null.</param>
+            <param name="rhs">The second value to compare, or null.</param>
+            <returns>True if the value of lhs is different from the value of rhs; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.op_Equality(MongoDB.Driver.ReadPreference,MongoDB.Driver.ReadPreference)">
+            <summary>
+            Determines whether two specified ReadPreference objects have the same value.
+            </summary>
+            <param name="lhs">The first value to compare, or null.</param>
+            <param name="rhs">The second value to compare, or null.</param>
+            <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.Equals(MongoDB.Driver.ReadPreference,MongoDB.Driver.ReadPreference)">
+            <summary>
+            Determines whether two specified ReadPreference objects have the same value.
+            </summary>
+            <param name="lhs">The first value to compare, or null.</param>
+            <param name="rhs">The second value to compare, or null.</param>
+            <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.AddTagSet(MongoDB.Driver.ReplicaSetTagSet)">
+            <summary>
+            Add a new tag set to the existing tag sets.
+            </summary>
+            <param name="tagSet">The new tag set.</param>
+            <returns>The ReadPreference so calls to AddTagSet can be chained.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.Clone">
+            <summary>
+            Creates a clone of the ReadPreference.
+            </summary>
+            <returns>A clone of the ReadPreference.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.Equals(MongoDB.Driver.ReadPreference)">
+            <summary>
+            Determines whether this instance and another specified ReadPreference object have the same value.
+            </summary>
+            <param name="rhs">The ReadPreference object to compare to this instance.</param>
+            <returns>True if the value of the rhs parameter is the same as this instance; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.Equals(System.Object)">
+            <summary>
+            Determines whether this instance and a specified object, which must also be a ReadPreference object, have the same value.
+            </summary>
+            <param name="obj">The ReadPreference object to compare to this instance.</param>
+            <returns>True if obj is a ReadPreference object and its value is the same as this instance; otherwise, false.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.Freeze">
+            <summary>
+            Freezes the ReadPreference.
+            </summary>
+            <returns>The frozen ReadPreference.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.FrozenCopy">
+            <summary>
+            Returns a frozen copy of the ReadPreference.
+            </summary>
+            <returns>A frozen copy of the ReadPreference.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.GetHashCode">
+            <summary>
+            Returns the hash code for this Class1 object.
+            </summary>
+            <returns>A 32-bit signed integer hash code.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.MatchesInstance(MongoDB.Driver.MongoServerInstance)">
+            <summary>
+            Tests whether the server instance matches the read preference.
+            </summary>
+            <param name="instance">The server instance.</param>
+            <returns>True if the server instance matches the read preferences.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.ReadPreference.ToString">
+            <summary>
+            Returns a string representation of the ReadPreference.
+            </summary>
+            <returns>A string representation of the user.</returns>
+        </member>
+        <member name="P:MongoDB.Driver.ReadPreference.Nearest">
+            <summary>
+            Gets a read preference value for nearest.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.ReadPreference.PrimaryPreferred">
+            <summary>
+            Gets a read preference value for primary preferred.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.ReadPreference.Primary">
+            <summary>
+            Gets a read preference value for primary.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.ReadPreference.Secondary">
+            <summary>
+            Gets a read preference value for secondary.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.ReadPreference.SecondaryPreferred">
+            <summary>
+            Gets a read preference value for secondary preferred.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.ReadPreference.IsFrozen">
+            <summary>
+            Gets whether the read preference has been frozen to prevent further changes.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.ReadPreference.ReadPreferenceMode">
+            <summary>
+            Gets the read preference mode.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.ReadPreference.TagSets">
+            <summary>
+            Gets the tag sets.
+            </summary>
+        </member>
         <member name="T:MongoDB.Driver.MongoDatabaseSettings">
             <summary>
             The settings used to access a database.
@@ -8306,15 +9385,15 @@
             <param name="server">The server to inherit settings from.</param>
             <param name="databaseName">The name of the database.</param>
         </member>
-        <member name="M:MongoDB.Driver.MongoDatabaseSettings.#ctor(System.String,MongoDB.Driver.MongoCredentials,MongoDB.Bson.GuidRepresentation,MongoDB.Driver.SafeMode,System.Boolean)">
+        <member name="M:MongoDB.Driver.MongoDatabaseSettings.#ctor(System.String,MongoDB.Driver.MongoCredentials,MongoDB.Bson.GuidRepresentation,MongoDB.Driver.ReadPreference,MongoDB.Driver.SafeMode)">
             <summary>
             Creates a new instance of MongoDatabaseSettings.
             </summary>
             <param name="databaseName">The name of the database.</param>
             <param name="credentials">The credentials to access the database.</param>
             <param name="guidRepresentation">The representation for Guids.</param>
+            <param name="readPreference">The read preference.</param>
             <param name="safeMode">The safe mode to use.</param>
-            <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         </member>
         <member name="M:MongoDB.Driver.MongoDatabaseSettings.Clone">
             <summary>
@@ -8373,6 +9452,11 @@
             Gets whether the settings have been frozen to prevent further changes.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.MongoDatabaseSettings.ReadPreference">
+            <summary>
+            Gets or sets the read preference.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.MongoDatabaseSettings.SafeMode">
             <summary>
             Gets or sets the SafeMode to use.
@@ -8380,7 +9464,7 @@
         </member>
         <member name="P:MongoDB.Driver.MongoDatabaseSettings.SlaveOk">
             <summary>
-            Gets or sets whether queries should be sent to secondary servers.
+            Gets or sets whether queries can be sent to secondary servers.
             </summary>
         </member>
         <member name="T:MongoDB.Driver.Builders.MapReduceOutputMode">
@@ -8926,6 +10010,56 @@
             Gets the server's port number.
             </summary>
         </member>
+        <member name="T:MongoDB.Driver.Linq.IProjector">
+            <summary>
+            Represents a projection from TSource to TResult;
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Linq.IProjector.Cursor">
+            <summary>
+            Gets the cursor.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.Linq.IProjector`2">
+            <summary>
+            Represents a projection from TSource to TResult;
+            </summary>
+            <typeparam name="TSource">The type of the source.</typeparam>
+            <typeparam name="TResult">The type of the result.</typeparam>
+        </member>
+        <member name="T:MongoDB.Driver.Linq.IdentityProjector`1">
+            <summary>
+            Represents a projector that does nothing.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:MongoDB.Driver.Linq.IdentityProjector`1.#ctor(MongoDB.Driver.MongoCursor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Linq.IdentityProjector`1"/> class.
+            </summary>
+            <param name="cursor">The cursor.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Linq.IdentityProjector`1.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the collection.
+            </summary>
+            <returns>
+            A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="M:MongoDB.Driver.Linq.IdentityProjector`1.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through a collection.
+            </summary>
+            <returns>
+            An <see cref="T:System.Collections.IEnumerator"/> object that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="P:MongoDB.Driver.Linq.IdentityProjector`1.Cursor">
+            <summary>
+            Gets the cursor.
+            </summary>
+        </member>
         <member name="T:MongoDB.Driver.Linq.Projector`2">
             <summary>
             Represents a projection.
@@ -8946,6 +10080,11 @@
             </summary>
             <returns>An enumerator for the result objects.</returns>
         </member>
+        <member name="P:MongoDB.Driver.Linq.Projector`2.Cursor">
+            <summary>
+            Gets the cursor.
+            </summary>
+        </member>
         <member name="T:MongoDB.Driver.Linq.PredicateTranslator">
             <summary>
             Translates an expression tree into an IMongoQuery.
@@ -8962,7 +10101,7 @@
             Builds an IMongoQuery from an expression.
             </summary>
             <param name="expression">The expression.</param>
-            <returns></returns>
+            <returns>An IMongoQuery.</returns>
         </member>
         <member name="T:MongoDB.Driver.Internal.MongoConnectionPool">
             <summary>
@@ -9380,6 +10519,13 @@
             <param name="value">Whether the index is a sparse index.</param>
             <returns>The builder (so method calls can be chained).</returns>
         </member>
+        <member name="M:MongoDB.Driver.Builders.IndexOptions.SetTimeToLive(System.TimeSpan)">
+            <summary>
+            Sets the time to live value.
+            </summary>
+            <param name="timeToLive">The time to live.</param>
+            <returns>The builder (so method calls can be chained).</returns>
+        </member>
         <member name="M:MongoDB.Driver.Builders.IndexOptions.SetUnique(System.Boolean)">
             <summary>
             Sets whether the index enforces unique values.
@@ -9443,6 +10589,13 @@
             Sets whether the index is a sparse index.
             </summary>
             <param name="value">Whether the index is a sparse index.</param>
+            <returns>The builder (so method calls can be chained).</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Builders.IndexOptionsBuilder.SetTimeToLive(System.TimeSpan)">
+            <summary>
+            Sets the time to live value.
+            </summary>
+            <param name="timeToLive">The time to live.</param>
             <returns>The builder (so method calls can be chained).</returns>
         </member>
         <member name="M:MongoDB.Driver.Builders.IndexOptionsBuilder.SetUnique(System.Boolean)">
@@ -9545,6 +10698,57 @@
             Gets the input count.
             </summary>
         </member>
+        <member name="T:MongoDB.Driver.Internal.ReplicaSetMongoServerProxy">
+            <summary>
+            Proxy for connecting to a replica set.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetMongoServerProxy.#ctor(MongoDB.Driver.MongoServer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.ReplicaSetMongoServerProxy"/> class.
+            </summary>
+            <param name="server">The server.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetMongoServerProxy.#ctor(MongoDB.Driver.MongoServer,System.Collections.Generic.IEnumerable{MongoDB.Driver.MongoServerInstance},MongoDB.Driver.Internal.BlockingQueue{MongoDB.Driver.MongoServerInstance},System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.ReplicaSetMongoServerProxy"/> class.
+            </summary>
+            <param name="server">The server.</param>
+            <param name="instances">The instances.</param>
+            <param name="stateChangeQueue">The state change queue.</param>
+            <param name="connectionAttempt">The connection attempt.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetMongoServerProxy.DetermineServerState(MongoDB.Driver.MongoServerState,System.Collections.Generic.IEnumerable{MongoDB.Driver.MongoServerInstance})">
+            <summary>
+            Determines the state of the server.
+            </summary>
+            <param name="currentState">State of the current.</param>
+            <param name="instances">The instances.</param>
+            <returns>The server state.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetMongoServerProxy.IsValidInstance(MongoDB.Driver.MongoServerInstance)">
+            <summary>
+            Determines whether the instance is a valid.  If not, the instance is removed.
+            </summary>
+            <param name="instance">The instance.</param>
+            <returns>
+              <c>true</c> if the instance is valid; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetMongoServerProxy.ProcessConnectedInstanceStateChange(MongoDB.Driver.MongoServerInstance)">
+            <summary>
+            Processes the connected instance state change.
+            </summary>
+            <param name="instance">The instance.</param>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.ReplicaSetMongoServerProxy.ReplicaSetName">
+            <summary>
+            Gets the name of the replica set.
+            </summary>
+            <value>
+            The name of the replica set.
+            </value>
+        </member>
         <member name="T:MongoDB.Driver.Internal.BlockingQueue`1">
             <summary>
             Represents a thread-safe queue.
@@ -9555,6 +10759,12 @@
             <summary>
             Initializes a new instance of the BlockingQueue class.
             </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.BlockingQueue`1.Dequeue">
+            <summary>
+            Dequeues one item from the queue.  Will block until the item is available.
+            </summary>
+            <returns>The first item in the queue.</returns>
         </member>
         <member name="M:MongoDB.Driver.Internal.BlockingQueue`1.Dequeue(System.TimeSpan)">
             <summary>
@@ -9568,6 +10778,51 @@
             Enqueues an item on to the queue.
             </summary>
             <param name="item">The item to be queued.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.BlockingQueue`1.EnqueuWorkItem(System.Func{`0})">
+            <summary>
+            Enqueus the work item to run on a seperate-thread.
+            </summary>
+            <param name="itemFunc">The item func.</param>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.BlockingQueue`1.Count">
+            <summary>
+            Gets the count of the items either ready or in the pipeline.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.Internal.ConnectedInstanceCollection">
+            <summary>
+            Maintains a sorted list of connected instances by ping time.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ConnectedInstanceCollection.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.ConnectedInstanceCollection"/> class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ConnectedInstanceCollection.Clear">
+            <summary>
+            Clears all the instances.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ConnectedInstanceCollection.ChooseServerInstance(MongoDB.Driver.ReadPreference)">
+            <summary>
+            Chooses the server instance based on the read preference.
+            </summary>
+            <param name="readPreference">The read preference.</param>
+            <returns>A MongoServerInstance.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ConnectedInstanceCollection.EnsureContains(MongoDB.Driver.MongoServerInstance)">
+            <summary>
+            Ensures that the instance is in the collection.
+            </summary>
+            <param name="instance">The instance.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ConnectedInstanceCollection.Remove(MongoDB.Driver.MongoServerInstance)">
+            <summary>
+            Removes the specified instance.
+            </summary>
+            <param name="instance">The instance.</param>
         </member>
         <member name="T:MongoDB.Driver.Wrappers.MapReduceOptionsWrapper">
             <summary>
@@ -9908,27 +11163,12 @@
             the driver will connect to the server automatically when needed.
             </summary>
         </member>
-        <member name="M:MongoDB.Driver.MongoServer.Connect(MongoDB.Driver.ConnectWaitFor)">
-            <summary>
-            Connects to the server. Normally there is no need to call this method as
-            the driver will connect to the server automatically when needed.
-            </summary>
-            <param name="waitFor">What to wait for before returning (when connecting to a replica set).</param>
-        </member>
         <member name="M:MongoDB.Driver.MongoServer.Connect(System.TimeSpan)">
             <summary>
             Connects to the server. Normally there is no need to call this method as
             the driver will connect to the server automatically when needed.
             </summary>
             <param name="timeout">How long to wait before timing out.</param>
-        </member>
-        <member name="M:MongoDB.Driver.MongoServer.Connect(System.TimeSpan,MongoDB.Driver.ConnectWaitFor)">
-            <summary>
-            Connects to the server. Normally there is no need to call this method as
-            the driver will connect to the server automatically when needed.
-            </summary>
-            <param name="timeout">How long to wait before timing out.</param>
-            <param name="waitFor">What to wait for before returning (when connecting to a replica set).</param>
         </member>
         <member name="M:MongoDB.Driver.MongoServer.CopyDatabase(System.String,System.String)">
             <summary>
@@ -10116,7 +11356,17 @@
             using statement (in which case RequestDone will be called automatically when leaving the using statement).
             </summary>
             <param name="initialDatabase">One of the databases involved in the related operations.</param>
-            <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
+            <param name="slaveOk">Whether a secondary is acceptable.</param>
+            <returns>A helper object that implements IDisposable and calls <see cref="M:MongoDB.Driver.MongoServer.RequestDone"/> from the Dispose method.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.MongoServer.RequestStart(MongoDB.Driver.MongoDatabase,MongoDB.Driver.ReadPreference)">
+            <summary>
+            Lets the server know that this thread is about to begin a series of related operations that must all occur
+            on the same connection. The return value of this method implements IDisposable and can be placed in a
+            using statement (in which case RequestDone will be called automatically when leaving the using statement).
+            </summary>
+            <param name="initialDatabase">One of the databases involved in the related operations.</param>
+            <param name="readPreference">The read preference.</param>
             <returns>A helper object that implements IDisposable and calls <see cref="M:MongoDB.Driver.MongoServer.RequestDone"/> from the Dispose method.</returns>
         </member>
         <member name="M:MongoDB.Driver.MongoServer.RequestStart(MongoDB.Driver.MongoDatabase,MongoDB.Driver.MongoServerInstance)">
@@ -10478,7 +11728,7 @@
             Creates a new instance of MongoServerSettings. Usually you would use a connection string instead.
             </summary>
         </member>
-        <member name="M:MongoDB.Driver.MongoServerSettings.#ctor(MongoDB.Driver.ConnectionMode,System.TimeSpan,MongoDB.Driver.MongoCredentialsStore,MongoDB.Driver.MongoCredentials,MongoDB.Bson.GuidRepresentation,System.Boolean,System.TimeSpan,System.TimeSpan,System.Int32,System.Int32,System.String,MongoDB.Driver.SafeMode,System.Collections.Generic.IEnumerable{MongoDB.Driver.MongoServerAddress},System.Boolean,System.TimeSpan,System.Int32,System.TimeSpan)">
+        <member name="M:MongoDB.Driver.MongoServerSettings.#ctor(MongoDB.Driver.ConnectionMode,System.TimeSpan,MongoDB.Driver.MongoCredentialsStore,MongoDB.Driver.MongoCredentials,MongoDB.Bson.GuidRepresentation,System.Boolean,System.TimeSpan,System.TimeSpan,System.Int32,System.Int32,MongoDB.Driver.ReadPreference,System.String,MongoDB.Driver.SafeMode,System.Collections.Generic.IEnumerable{MongoDB.Driver.MongoServerAddress},System.TimeSpan,System.Boolean,System.Boolean,System.Int32,System.TimeSpan)">
             <summary>
             Creates a new instance of MongoServerSettings. Usually you would use a connection string instead.
             </summary>
@@ -10492,11 +11742,13 @@
             <param name="maxConnectionLifeTime">The max connection life time.</param>
             <param name="maxConnectionPoolSize">The max connection pool size.</param>
             <param name="minConnectionPoolSize">The min connection pool size.</param>
+            <param name="readPreference">The default read preference.</param>
             <param name="replicaSetName">The name of the replica set.</param>
             <param name="safeMode">The safe mode.</param>
             <param name="servers">The server addresses (normally one unless it is the seed list for connecting to a replica set).</param>
-            <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
             <param name="socketTimeout">The socket timeout.</param>
+            <param name="useSsl">Whether to use SSL.</param>
+            <param name="verifySslCertificate">Whether to verify an SSL certificate.</param>
             <param name="waitQueueSize">The wait queue size.</param>
             <param name="waitQueueTimeout">The wait queue timeout.</param>
         </member>
@@ -10604,6 +11856,11 @@
             Gets or sets the min connection pool size.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.MongoServerSettings.ReadPreference">
+            <summary>
+            Gets or sets the read preferences.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.MongoServerSettings.ReplicaSetName">
             <summary>
             Gets or sets the name of the replica set.
@@ -10634,6 +11891,16 @@
             Gets or sets the socket timeout.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.MongoServerSettings.UseSsl">
+            <summary>
+            Gets or sets whether to use SSL.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.MongoServerSettings.VerifySslCertificate">
+            <summary>
+            Gets or sets whether to verify an SSL certificate.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.MongoServerSettings.WaitQueueSize">
             <summary>
             Gets or sets the wait queue size.
@@ -10642,6 +11909,36 @@
         <member name="P:MongoDB.Driver.MongoServerSettings.WaitQueueTimeout">
             <summary>
             Gets or sets the wait queue timeout.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.CollectionSystemFlags">
+            <summary>
+            Represents collection system flags.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.CollectionSystemFlags.None">
+            <summary>
+            No flags.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.CollectionSystemFlags.HasIdIndex">
+            <summary>
+            The collection has an _id index.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Driver.CollectionUserFlags">
+            <summary>
+            Represents collection user flags.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.CollectionUserFlags.None">
+            <summary>
+            No flags.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.CollectionUserFlags.UsePowerOf2Sizes">
+            <summary>
+            User power of 2 size.
             </summary>
         </member>
         <member name="T:MongoDB.Driver.CollectionStatsResult">
@@ -10719,9 +12016,19 @@
             Gets the storage size.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.CollectionStatsResult.SystemFlags">
+            <summary>
+            Gets the system flags.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.CollectionStatsResult.TotalIndexSize">
             <summary>
             Gets the total index size.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.CollectionStatsResult.UserFlags">
+            <summary>
+            Gets the user flags.
             </summary>
         </member>
         <member name="T:MongoDB.Driver.CollectionStatsResult.IndexSizesResult">
@@ -11604,6 +12911,11 @@
             Server connection mode.
             </summary>
         </member>
+        <member name="F:MongoDB.Driver.ConnectionMode.Automatic">
+            <summary>
+            Automatically determine how to connect.
+            </summary>
+        </member>
         <member name="F:MongoDB.Driver.ConnectionMode.Direct">
             <summary>
             Connect directly to a server.
@@ -11612,6 +12924,11 @@
         <member name="F:MongoDB.Driver.ConnectionMode.ReplicaSet">
             <summary>
             Connect to a replica set.
+            </summary>
+        </member>
+        <member name="F:MongoDB.Driver.ConnectionMode.ShardRouter">
+            <summary>
+            Connect to one or more shard routers.
             </summary>
         </member>
         <member name="T:MongoDB.Driver.MongoUrl">
@@ -11741,6 +13058,11 @@
             Gets the min connection pool size.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.MongoUrl.ReadPreference">
+            <summary>
+            Gets the read preference.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.MongoUrl.ReplicaSetName">
             <summary>
             Gets the name of the replica set.
@@ -11763,7 +13085,7 @@
         </member>
         <member name="P:MongoDB.Driver.MongoUrl.SlaveOk">
             <summary>
-            Gets whether queries should be sent to secondary servers.
+            Gets whether queries can be sent to secondary servers.
             </summary>
         </member>
         <member name="P:MongoDB.Driver.MongoUrl.SocketTimeout">
@@ -11774,6 +13096,16 @@
         <member name="P:MongoDB.Driver.MongoUrl.Url">
             <summary>
             Gets the URL (in canonical form).
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.MongoUrl.UseSsl">
+            <summary>
+            Gets whether to use SSL.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.MongoUrl.VerifySslCertificate">
+            <summary>
+            Gets whether to verify an SSL certificate.
             </summary>
         </member>
         <member name="P:MongoDB.Driver.MongoUrl.WaitQueueMultiple">
@@ -11885,6 +13217,7 @@
             <summary>
             An abstract base class for an Expression visitor that returns a value of type T.
             </summary>
+            <typeparam name="T">The type of the return value.</typeparam>
         </member>
         <member name="M:MongoDB.Driver.Linq.ExpressionVisitor`1.#ctor">
             <summary>
@@ -12113,6 +13446,97 @@
             </summary>
             <param name="node">The UnaryExpression.</param>
             <returns>BsonSerializationInfo for the expression.</returns>
+        </member>
+        <member name="T:MongoDB.Driver.Internal.ReplicaSetInformation">
+            <summary>
+            Information about a replica set member.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetInformation.#ctor(System.String,MongoDB.Driver.MongoServerAddress,System.Collections.Generic.IEnumerable{MongoDB.Driver.MongoServerAddress},MongoDB.Driver.ReplicaSetTagSet)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.ReplicaSetInformation"/> class.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="primary">The primary.</param>
+            <param name="members">The members.</param>
+            <param name="tagSet">The tag set.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetInformation.op_Equality(MongoDB.Driver.Internal.ReplicaSetInformation,MongoDB.Driver.Internal.ReplicaSetInformation)">
+            <summary>
+            Implements the operator ==.
+            </summary>
+            <param name="lhs">The LHS.</param>
+            <param name="rhs">The RHS.</param>
+            <returns>
+            The result of the operator.
+            </returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetInformation.op_Inequality(MongoDB.Driver.Internal.ReplicaSetInformation,MongoDB.Driver.Internal.ReplicaSetInformation)">
+            <summary>
+            Implements the operator !=.
+            </summary>
+            <param name="lhs">The LHS.</param>
+            <param name="rhs">The RHS.</param>
+            <returns>
+            The result of the operator.
+            </returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetInformation.Equals(System.Object)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object"/> is equal to this instance.
+            </summary>
+            <param name="obj">The <see cref="T:System.Object"/> to compare with this instance.</param>
+            <returns>
+              <c>true</c> if the specified <see cref="T:System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+            </returns>
+            <exception cref="T:System.NullReferenceException">
+            The <paramref name="obj"/> parameter is null.
+              </exception>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetInformation.Equals(MongoDB.Driver.Internal.ReplicaSetInformation)">
+            <summary>
+            Indicates whether the current object is equal to another object of the same type.
+            </summary>
+            <param name="rhs">An object to compare with this object.</param>
+            <returns>
+            true if the current object is equal to the <paramref name="rhs"/> parameter; otherwise, false.
+            </returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetInformation.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+            <returns>
+            A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+            </returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ReplicaSetInformation.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.ReplicaSetInformation.Name">
+            <summary>
+            Gets the name.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.ReplicaSetInformation.Primary">
+            <summary>
+            Gets the primary.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.ReplicaSetInformation.Members">
+            <summary>
+            Gets the members.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.Internal.ReplicaSetInformation.TagSet">
+            <summary>
+            Gets the tag set.
+            </summary>
         </member>
         <member name="T:MongoDB.Driver.Wrappers.ScopeWrapper">
             <summary>
@@ -12454,6 +13878,51 @@
             Gets the MongoDB query that will be sent to the server when this LINQ query is executed.
             </summary>
             <returns>The MongoDB query.</returns>
+        </member>
+        <member name="T:MongoDB.Driver.Internal.ShardedMongoServerProxy">
+            <summary>
+            Connects to a number of mongos' and distributes load based on ping times.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ShardedMongoServerProxy.#ctor(MongoDB.Driver.MongoServer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.ShardedMongoServerProxy"/> class.
+            </summary>
+            <param name="server">The server.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ShardedMongoServerProxy.#ctor(MongoDB.Driver.MongoServer,System.Collections.Generic.IEnumerable{MongoDB.Driver.MongoServerInstance},MongoDB.Driver.Internal.BlockingQueue{MongoDB.Driver.MongoServerInstance},System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Driver.Internal.ShardedMongoServerProxy"/> class.
+            </summary>
+            <param name="server">The server.</param>
+            <param name="instances">The instances.</param>
+            <param name="stateChangedQueue">The state changed queue.</param>
+            <param name="connectionAttempt">The connection attempt.</param>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ShardedMongoServerProxy.ChooseServerInstance(MongoDB.Driver.Internal.ConnectedInstanceCollection,MongoDB.Driver.ReadPreference)">
+            <summary>
+            Chooses the server instance.
+            </summary>
+            <param name="connectedInstances">The connected instances.</param>
+            <param name="readPreference">The read preference.</param>
+            <returns>A MongoServerInstance.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ShardedMongoServerProxy.DetermineServerState(MongoDB.Driver.MongoServerState,System.Collections.Generic.IEnumerable{MongoDB.Driver.MongoServerInstance})">
+            <summary>
+            Determines the state of the server.
+            </summary>
+            <param name="currentState">State of the current.</param>
+            <param name="instances">The instances.</param>
+            <returns>The server state.</returns>
+        </member>
+        <member name="M:MongoDB.Driver.Internal.ShardedMongoServerProxy.IsValidInstance(MongoDB.Driver.MongoServerInstance)">
+            <summary>
+            Determines whether the instance is a valid.  If not, the instance is removed.
+            </summary>
+            <param name="instance">The instance.</param>
+            <returns>
+              <c>true</c> if the instance is valid; otherwise, <c>false</c>.
+            </returns>
         </member>
         <member name="T:MongoDB.Driver.MongoAuthenticationException">
             <summary>
@@ -13461,6 +14930,11 @@
             Gets or sets the default password.
             </summary>
         </member>
+        <member name="P:MongoDB.Driver.MongoConnectionStringBuilder.ReadPreference">
+            <summary>
+            Gets or sets the read preference.
+            </summary>
+        </member>
         <member name="P:MongoDB.Driver.MongoConnectionStringBuilder.ReplicaSetName">
             <summary>
             Gets or sets the name of the replica set.
@@ -13494,6 +14968,16 @@
         <member name="P:MongoDB.Driver.MongoConnectionStringBuilder.Username">
             <summary>
             Gets or sets the default username.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.MongoConnectionStringBuilder.UseSsl">
+            <summary>
+            Gets or sets whether to use SSL.
+            </summary>
+        </member>
+        <member name="P:MongoDB.Driver.MongoConnectionStringBuilder.VerifySslCertificate">
+            <summary>
+            Gets or sets whether to verify an SSL certificate.
             </summary>
         </member>
         <member name="P:MongoDB.Driver.MongoConnectionStringBuilder.WaitQueueMultiple">
