@@ -4,6 +4,163 @@
         <name>MongoDB.Bson</name>
     </assembly>
     <members>
+        <member name="T:MongoDB.Bson.Serialization.Serializers.ReadOnlyCollectionSerializer`1">
+            <summary>
+            Represents a serializer for ReadOnlyCollections.
+            </summary>
+            <typeparam name="T">The type of the elements.</typeparam>
+        </member>
+        <member name="T:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer">
+            <summary>
+            Represents a base implementation for the many implementations of IBsonSerializer.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Bson.Serialization.IBsonSerializer">
+            <summary>
+            An interface implemented by BSON serializers.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.IBsonSerializer.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Deserializes an object from a BsonReader.
+            </summary>
+            <param name="bsonReader">The BsonReader.</param>
+            <param name="nominalType">The nominal type of the object.</param>
+            <param name="options">The serialization options.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.IBsonSerializer.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Deserializes an object from a BsonReader.
+            </summary>
+            <param name="bsonReader">The BsonReader.</param>
+            <param name="nominalType">The nominal type of the object.</param>
+            <param name="actualType">The actual type of the object.</param>
+            <param name="options">The serialization options.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.IBsonSerializer.GetDefaultSerializationOptions">
+            <summary>
+            Gets the default serialization options for this serializer.
+            </summary>
+            <returns>The default serialization options for this serializer.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.IBsonSerializer.Serialize(MongoDB.Bson.IO.BsonWriter,System.Type,System.Object,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Serializes an object to a BsonWriter.
+            </summary>
+            <param name="bsonWriter">The BsonWriter.</param>
+            <param name="nominalType">The nominal type.</param>
+            <param name="value">The object.</param>
+            <param name="options">The serialization options.</param>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.#ctor">
+            <summary>
+            Initializes a new instance of the BsonBaseSerializer class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.#ctor(MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Initializes a new instance of the BsonBaseSerializer class.
+            </summary>
+            <param name="defaultSerializationOptions">The default serialization options for this serializer.</param>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Deserializes an object from a BsonReader.
+            </summary>
+            <param name="bsonReader">The BsonReader.</param>
+            <param name="nominalType">The nominal type of the object.</param>
+            <param name="options">The serialization options.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Deserializes an object from a BsonReader.
+            </summary>
+            <param name="bsonReader">The BsonReader.</param>
+            <param name="nominalType">The nominal type of the object.</param>
+            <param name="actualType">The actual type of the object.</param>
+            <param name="options">The serialization options.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.GetDefaultSerializationOptions">
+            <summary>
+            Gets the default serialization options for this serializer.
+            </summary>
+            <returns>The default serialization options for this serializer.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.Serialize(MongoDB.Bson.IO.BsonWriter,System.Type,System.Object,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Serializes an object to a BsonWriter.
+            </summary>
+            <param name="bsonWriter">The BsonWriter.</param>
+            <param name="nominalType">The nominal type.</param>
+            <param name="value">The object.</param>
+            <param name="options">The serialization options.</param>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.EnsureSerializationOptions``1(MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Ensures that the serializer has serialization options of the right type (replacing null with the default serialization options if necessary).
+            </summary>
+            <typeparam name="TSerializationOptions">The required serialization options type.</typeparam>
+            <param name="options">The serialization options.</param>
+            <returns>The serialization options (or the defaults if null) cast to the required type.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.VerifyTypes(System.Type,System.Type,System.Type)">
+            <summary>
+            Verifies the nominal and actual types against the expected type.
+            </summary>
+            <param name="nominalType">The nominal type.</param>
+            <param name="actualType">The actual type.</param>
+            <param name="expectedType">The expected type.</param>
+        </member>
+        <member name="P:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.DefaultSerializationOptions">
+            <summary>
+            Gets the default serialization options.
+            </summary>
+        </member>
+        <member name="T:MongoDB.Bson.Serialization.IBsonArraySerializer">
+            <summary>
+            Contract for serializers to implement if they serialize an array of items.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.IBsonArraySerializer.GetItemSerializationInfo">
+            <summary>
+            Gets the serialization info for individual items of the array.
+            </summary>
+            <returns>The serialization info for the items.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.ReadOnlyCollectionSerializer`1.#ctor">
+            <summary>
+            Initializes a new instance of the ReadOnlyCollectionSerializer class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.ReadOnlyCollectionSerializer`1.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Deserializes an object from a BsonReader.
+            </summary>
+            <param name="bsonReader">The BsonReader.</param>
+            <param name="nominalType">The nominal type of the object.</param>
+            <param name="actualType">The actual type of the object.</param>
+            <param name="options">The serialization options.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.ReadOnlyCollectionSerializer`1.GetItemSerializationInfo">
+            <summary>
+            Gets the serialization info for individual items of an enumerable type.
+            </summary>
+            <returns>The serialization info for the items.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Serializers.ReadOnlyCollectionSerializer`1.Serialize(MongoDB.Bson.IO.BsonWriter,System.Type,System.Object,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Serializes an object to a BsonWriter.
+            </summary>
+            <param name="bsonWriter">The BsonWriter.</param>
+            <param name="nominalType">The nominal type.</param>
+            <param name="value">The object.</param>
+            <param name="options">The serialization options.</param>
+        </member>
         <member name="T:MongoDB.Bson.Serialization.BsonDefaultSerializationProvider">
             <summary>
             Represents the default serialization provider.
@@ -566,116 +723,6 @@
         <member name="T:MongoDB.Bson.Serialization.Serializers.BooleanSerializer">
             <summary>
             Represents a serializer for Booleans.
-            </summary>
-        </member>
-        <member name="T:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer">
-            <summary>
-            Represents a base implementation for the many implementations of IBsonSerializer.
-            </summary>
-        </member>
-        <member name="T:MongoDB.Bson.Serialization.IBsonSerializer">
-            <summary>
-            An interface implemented by BSON serializers.
-            </summary>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.IBsonSerializer.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
-            <summary>
-            Deserializes an object from a BsonReader.
-            </summary>
-            <param name="bsonReader">The BsonReader.</param>
-            <param name="nominalType">The nominal type of the object.</param>
-            <param name="options">The serialization options.</param>
-            <returns>An object.</returns>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.IBsonSerializer.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
-            <summary>
-            Deserializes an object from a BsonReader.
-            </summary>
-            <param name="bsonReader">The BsonReader.</param>
-            <param name="nominalType">The nominal type of the object.</param>
-            <param name="actualType">The actual type of the object.</param>
-            <param name="options">The serialization options.</param>
-            <returns>An object.</returns>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.IBsonSerializer.GetDefaultSerializationOptions">
-            <summary>
-            Gets the default serialization options for this serializer.
-            </summary>
-            <returns>The default serialization options for this serializer.</returns>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.IBsonSerializer.Serialize(MongoDB.Bson.IO.BsonWriter,System.Type,System.Object,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
-            <summary>
-            Serializes an object to a BsonWriter.
-            </summary>
-            <param name="bsonWriter">The BsonWriter.</param>
-            <param name="nominalType">The nominal type.</param>
-            <param name="value">The object.</param>
-            <param name="options">The serialization options.</param>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.#ctor">
-            <summary>
-            Initializes a new instance of the BsonBaseSerializer class.
-            </summary>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.#ctor(MongoDB.Bson.Serialization.IBsonSerializationOptions)">
-            <summary>
-            Initializes a new instance of the BsonBaseSerializer class.
-            </summary>
-            <param name="defaultSerializationOptions">The default serialization options for this serializer.</param>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
-            <summary>
-            Deserializes an object from a BsonReader.
-            </summary>
-            <param name="bsonReader">The BsonReader.</param>
-            <param name="nominalType">The nominal type of the object.</param>
-            <param name="options">The serialization options.</param>
-            <returns>An object.</returns>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
-            <summary>
-            Deserializes an object from a BsonReader.
-            </summary>
-            <param name="bsonReader">The BsonReader.</param>
-            <param name="nominalType">The nominal type of the object.</param>
-            <param name="actualType">The actual type of the object.</param>
-            <param name="options">The serialization options.</param>
-            <returns>An object.</returns>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.GetDefaultSerializationOptions">
-            <summary>
-            Gets the default serialization options for this serializer.
-            </summary>
-            <returns>The default serialization options for this serializer.</returns>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.Serialize(MongoDB.Bson.IO.BsonWriter,System.Type,System.Object,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
-            <summary>
-            Serializes an object to a BsonWriter.
-            </summary>
-            <param name="bsonWriter">The BsonWriter.</param>
-            <param name="nominalType">The nominal type.</param>
-            <param name="value">The object.</param>
-            <param name="options">The serialization options.</param>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.EnsureSerializationOptions``1(MongoDB.Bson.Serialization.IBsonSerializationOptions)">
-            <summary>
-            Ensures that the serializer has serialization options of the right type (replacing null with the default serialization options if necessary).
-            </summary>
-            <typeparam name="TSerializationOptions">The required serialization options type.</typeparam>
-            <param name="options">The serialization options.</param>
-            <returns>The serialization options (or the defaults if null) cast to the required type.</returns>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.VerifyTypes(System.Type,System.Type,System.Type)">
-            <summary>
-            Verifies the nominal and actual types against the expected type.
-            </summary>
-            <param name="nominalType">The nominal type.</param>
-            <param name="actualType">The actual type.</param>
-            <param name="expectedType">The expected type.</param>
-        </member>
-        <member name="P:MongoDB.Bson.Serialization.Serializers.BsonBaseSerializer.DefaultSerializationOptions">
-            <summary>
-            Gets the default serialization options.
             </summary>
         </member>
         <member name="M:MongoDB.Bson.Serialization.Serializers.BooleanSerializer.#ctor">
@@ -2494,6 +2541,7 @@
             <summary>
             Reads a BsonType from the reader.
             </summary>
+            <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
             <param name="bsonTrie">An optional trie to search for a value that matches the next element name.</param>
             <param name="found">Set to true if a matching value was found in the trie.</param>
             <param name="value">Set to the matching value found in the trie or null if no matching value was found.</param>
@@ -2842,6 +2890,7 @@
             <summary>
             Reads a BsonType from the reader.
             </summary>
+            <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
             <param name="bsonTrie">An optional trie to search for a value that matches the next element name.</param>
             <param name="found">Set to true if a matching value was found in the trie.</param>
             <param name="value">Set to the matching value found in the trie or null if no matching value was found.</param>
@@ -4150,6 +4199,45 @@
             The BSON serialization options for the member; or null to use defaults.
             </returns>
         </member>
+        <member name="T:MongoDB.Bson.Serialization.BsonDocumentBackedClass">
+            <summary>
+            A class backed by a BsonDocument.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonDocumentBackedClass.#ctor(MongoDB.Bson.Serialization.IBsonDocumentSerializer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Bson.Serialization.BsonDocumentBackedClass"/> class.
+            </summary>
+            <param name="serializer">The serializer.</param>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonDocumentBackedClass.#ctor(MongoDB.Bson.BsonDocument,MongoDB.Bson.Serialization.IBsonDocumentSerializer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Bson.Serialization.BsonDocumentBackedClass"/> class.
+            </summary>
+            <param name="backingDocument">The backing document.</param>
+            <param name="serializer">The serializer.</param>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonDocumentBackedClass.GetValue``1(System.String,``0)">
+            <summary>
+            Gets the value from the backing document.
+            </summary>
+            <typeparam name="T">The type of the value.</typeparam>
+            <param name="memberName">The member name.</param>
+            <param name="defaultValue">The default value.</param>
+            <returns>The value.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonDocumentBackedClass.SetValue(System.String,System.Object)">
+            <summary>
+            Sets the value in the backing document.
+            </summary>
+            <param name="memberName">The member name.</param>
+            <param name="value">The value.</param>
+        </member>
+        <member name="P:MongoDB.Bson.Serialization.BsonDocumentBackedClass.BackingDocument">
+            <summary>
+            Gets the backing document.
+            </summary>
+        </member>
         <member name="T:MongoDB.Bson.Serialization.Attributes.BsonRepresentationAttribute">
             <summary>
             Specifies the external representation and related options for this field or property.
@@ -4310,6 +4398,7 @@
             <summary>
             Represents a mapping from a set of UTF8 encoded strings to a set of elementName/value pairs, implemented as a trie.
             </summary>
+            <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
         </member>
         <member name="M:MongoDB.Bson.IO.BsonTrie`1.#ctor">
             <summary>
@@ -4332,7 +4421,7 @@
             When this method returns, contains the value associated with the specified element name, if the key is found;
             otherwise, the default value for the type of the value parameter. This parameter is passed unitialized.
             </param>
-            <returns></returns>
+            <returns>True if the value was found; otherwise, false.</returns>
         </member>
         <member name="P:MongoDB.Bson.IO.BsonTrie`1.Root">
             <summary>
@@ -4343,6 +4432,7 @@
             <summary>
             Represents a node in a BsonTrie.
             </summary>
+            <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
         </member>
         <member name="M:MongoDB.Bson.IO.BsonTrieNode`1.GetChild(System.Byte)">
             <summary>
@@ -5558,17 +5648,6 @@
             Represents a serializer for enumerable values.
             </summary>
         </member>
-        <member name="T:MongoDB.Bson.Serialization.IBsonArraySerializer">
-            <summary>
-            Contract for serializers to implement if they serialize an array of items.
-            </summary>
-        </member>
-        <member name="M:MongoDB.Bson.Serialization.IBsonArraySerializer.GetItemSerializationInfo">
-            <summary>
-            Gets the serialization info for individual items of the array.
-            </summary>
-            <returns>The serialization info for the items.</returns>
-        </member>
         <member name="M:MongoDB.Bson.Serialization.Serializers.EnumerableSerializer.#ctor">
             <summary>
             Initializes a new instance of the EnumerableSerializer class.
@@ -6346,6 +6425,7 @@
             <summary>
             Reads a BsonType from the reader.
             </summary>
+            <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
             <param name="bsonTrie">An optional trie to search for a value that matches the next element name.</param>
             <param name="found">Set to true if a matching value was found in the trie.</param>
             <param name="value">Set to the matching value found in the trie or null if no matching value was found.</param>
@@ -6524,6 +6604,7 @@
             <summary>
             Reads a BsonType from the reader.
             </summary>
+            <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
             <param name="bsonTrie">An optional trie to search for a value that matches the next element name.</param>
             <param name="found">Set to true if a matching value was found in the trie.</param>
             <param name="value">Set to the matching value found in the trie or null if no matching value was found.</param>
@@ -9763,6 +9844,40 @@
             Gets an instance of the ObjectSerializer class.
             </summary>
         </member>
+        <member name="T:MongoDB.Bson.Serialization.Attributes.BsonSerializerAttribute">
+            <summary>
+            Specifies the type of the serializer to use for a class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Attributes.BsonSerializerAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the BsonSerializerAttribute class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Attributes.BsonSerializerAttribute.#ctor(System.Type)">
+            <summary>
+            Initializes a new instance of the BsonSerializerAttribute class.
+            </summary>
+            <param name="serializerType">The type of the serializer to use for a class.</param>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Attributes.BsonSerializerAttribute.Apply(MongoDB.Bson.Serialization.BsonMemberMap)">
+            <summary>
+            Applies a modification to the member map.
+            </summary>
+            <param name="memberMap">The member map.</param>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.Attributes.BsonSerializerAttribute.CreateSerializer(System.Type)">
+            <summary>
+            Creates a serializer for a type based on the serializer type specified by the attribute.
+            </summary>
+            <param name="type">The type that a serializer should be created for.</param>
+            <returns>A serializer for the type.</returns>
+        </member>
+        <member name="P:MongoDB.Bson.Serialization.Attributes.BsonSerializerAttribute.SerializerType">
+            <summary>
+            Gets or sets the type of the serializer to use for a class.
+            </summary>
+        </member>
         <member name="T:MongoDB.Bson.Serialization.Attributes.BsonExtraElementsAttribute">
             <summary>
             Indicates that this property or field will be used to hold any extra elements found during deserialization.
@@ -11070,6 +11185,7 @@
             <summary>
             Reads a BSON CString from the reader (a null terminated string).
             </summary>
+            <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
             <param name="bsonTrie">An optional BsonTrie to use during decoding.</param>
             <param name="found">Set to true if the string was found in the trie.</param>
             <param name="value">Set to the value found in the trie; otherwise, null.</param>
@@ -12198,6 +12314,27 @@
             <param name="nominalType">The nominal type.</param>
             <param name="serializationOptions">The serialization options.</param>
         </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonSerializationInfo.DeserializeValue(MongoDB.Bson.BsonValue)">
+            <summary>
+            Deserializes the value.
+            </summary>
+            <param name="value">The value.</param>
+            <returns>The deserialized value.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonSerializationInfo.SerializeValue(System.Object)">
+            <summary>
+            Serializes the value.
+            </summary>
+            <param name="value">The value.</param>
+            <returns>The serialized value.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonSerializationInfo.SerializeValues(System.Collections.IEnumerable)">
+            <summary>
+            Serializes the values.
+            </summary>
+            <param name="values">The values.</param>
+            <returns>The serialized values.</returns>
+        </member>
         <member name="P:MongoDB.Bson.Serialization.BsonSerializationInfo.ElementName">
             <summary>
             Gets or sets the dotted element name.
@@ -12694,6 +12831,62 @@
             <summary>
             The scope document of a JavaScriptWithScope BSON value.
             </summary>
+        </member>
+        <member name="T:MongoDB.Bson.Serialization.BsonDocumentBackedClassSerializer`1">
+            <summary>
+            Represents a serializer for TClass (a subclass of BsonDocumentBackedClass).
+            </summary>
+            <typeparam name="TClass">The subclass of BsonDocumentBackedClass.</typeparam>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonDocumentBackedClassSerializer`1.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:MongoDB.Bson.Serialization.BsonDocumentBackedClassSerializer`1"/> class.
+            </summary>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonDocumentBackedClassSerializer`1.Deserialize(MongoDB.Bson.IO.BsonReader,System.Type,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Deserializes an object from a BsonReader.
+            </summary>
+            <param name="bsonReader">The BsonReader.</param>
+            <param name="nominalType">The nominal type of the object.</param>
+            <param name="actualType">The actual type of the object.</param>
+            <param name="options">The serialization options.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonDocumentBackedClassSerializer`1.GetMemberSerializationInfo(System.String)">
+            <summary>
+            Gets the serialization info for a member.
+            </summary>
+            <param name="memberName">The member name.</param>
+            <returns>
+            The serialization info for the member.
+            </returns>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonDocumentBackedClassSerializer`1.Serialize(MongoDB.Bson.IO.BsonWriter,System.Type,System.Object,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Serializes an object to a BsonWriter.
+            </summary>
+            <param name="bsonWriter">The BsonWriter.</param>
+            <param name="nominalType">The nominal type.</param>
+            <param name="value">The object.</param>
+            <param name="options">The serialization options.</param>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonDocumentBackedClassSerializer`1.RegisterMember(System.String,System.String,MongoDB.Bson.Serialization.IBsonSerializer,System.Type,MongoDB.Bson.Serialization.IBsonSerializationOptions)">
+            <summary>
+            Registers a member.
+            </summary>
+            <param name="memberName">The member name.</param>
+            <param name="elementName">The element name.</param>
+            <param name="serializer">The serializer.</param>
+            <param name="nominalType">The nominal type.</param>
+            <param name="serializationOptions">The serialization options.</param>
+        </member>
+        <member name="M:MongoDB.Bson.Serialization.BsonDocumentBackedClassSerializer`1.CreateInstance(MongoDB.Bson.BsonDocument)">
+            <summary>
+            Creates the instance.
+            </summary>
+            <param name="backingDocument">The backing document.</param>
+            <returns>An instance of TClass.</returns>
         </member>
         <member name="T:MongoDB.Bson.Serialization.Serializers.ArraySerializer`1">
             <summary>
