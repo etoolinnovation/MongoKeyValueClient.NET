@@ -61,7 +61,7 @@ namespace EtoolTech.Mongo.KeyValueClient
                 if (_isReplicaSet == null)
                 {
                     var server = GetServer();
-                    _isReplicaSet = !String.IsNullOrEmpty(server.ReplicaSetName);                 
+                    _isReplicaSet = !String.IsNullOrEmpty(server.ReplicaSetName);
                 }
 
                 if (_isReplicaSet == false)
@@ -72,7 +72,7 @@ namespace EtoolTech.Mongo.KeyValueClient
                 {
                     if (String.IsNullOrEmpty(_primaryConnectionString))
                     {
-                        _primaryConnectionString = ConnectionString + "&readPreference=primary";
+                        _primaryConnectionString = ConnectionString + ";readPreference=primary";
                     }
                     return _primaryCol ?? (_primaryCol = GetDb(_primaryConnectionString).GetCollection(_collectionName));
                 }
