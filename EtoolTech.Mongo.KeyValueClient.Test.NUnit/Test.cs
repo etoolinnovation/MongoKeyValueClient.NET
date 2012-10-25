@@ -15,10 +15,10 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
         public void TestGetForWrite()
         {
             var c = new Client();
-            foreach (string key in c.GetAllKeys())
-            {
-                c.Remove(key);
-            }
+            //foreach (string key in c.GetAllKeys())
+            //{
+            //    c.Remove(key);
+            //}
 
           
             c.Add("100000", 100000);
@@ -49,10 +49,10 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
         public void TestCacheAloneInsert()
          {
              var c = new Client();
-             foreach (string key in c.GetAllKeys())
-             {
-                 c.Remove(key);
-             }
+             //foreach (string key in c.GetAllKeys())
+             //{
+             //    c.Remove(key);
+             //}
 
              c.Add("Key", 100000);
 
@@ -80,10 +80,10 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
         public void TestCacheInsert()
         {
             var c = new Client();
-            foreach (string key in c.GetAllKeys())
-            {
-                c.Remove(key);
-            }
+            //foreach (string key in c.GetAllKeys())
+            //{
+            //    c.Remove(key);
+            //}
 
             System.Threading.Tasks.Parallel.For(0, 10000, index => c.Add(index.ToString(),index));
 

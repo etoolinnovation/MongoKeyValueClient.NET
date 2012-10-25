@@ -61,15 +61,7 @@ namespace EtoolTech.Mongo.KeyValueClient
                 if (_isReplicaSet == null)
                 {
                     var server = GetServer();
-                    _isReplicaSet = !String.IsNullOrEmpty(server.ReplicaSetName);
-                    if (_isReplicaSet == true)
-                    {
-                        _primaryConnectionString =
-                            String.Format("mongodb://{0}/?maxpoolsize={1};waitQueueTimeout={2};safe={3};fsync={4}",
-                                          server.Primary.Address, server.Settings.MaxConnectionPoolSize,
-                                          server.Settings.WaitQueueTimeout, server.Settings.SafeMode.Enabled,
-                                          server.Settings.SafeMode.FSync);
-                    }
+                    _isReplicaSet = !String.IsNullOrEmpty(server.ReplicaSetName);                 
                 }
 
                 if (_isReplicaSet == false)
@@ -78,6 +70,10 @@ namespace EtoolTech.Mongo.KeyValueClient
                 }
                 else
                 {
+                    if (String.IsNullOrEmpty(_primaryConnectionString))
+                    {
+                        _primaryConnectionString = ConnectionString + "&readPreference=primary";
+                    }
                     return _primaryCol ?? (_primaryCol = GetDb(_primaryConnectionString).GetCollection(_collectionName));
                 }
 
@@ -129,7 +125,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         public bool Add(string key, object data)
         {
-            MongoCollection collection = Collection;
+            MongoCollection collection = PrimaryCollection;
             IMongoQuery query = Query.EQ("_id", key);
             var result = collection.FindAndModify(query, null, Update.Set("Data", Serializer.ToByteArray(data)), false, true);
             
@@ -141,7 +137,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         public bool Remove(string key)
         {
-            MongoCollection collection = Collection;
+            MongoCollection collection = PrimaryCollection;
             IMongoQuery query = Query.EQ("_id", key);
             var result = collection.Remove(query, SafeMode.True);
             
@@ -153,7 +149,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         public void RemoveAll()
         {
-            MongoCollection collection = Collection;
+            MongoCollection collection = PrimaryCollection;
             collection.RemoveAll();
         }
 
