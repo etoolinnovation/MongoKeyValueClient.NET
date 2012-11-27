@@ -5,9 +5,11 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using System.Xml.Serialization;
 using JsonPrettyPrinterPlus;
 using JsonPrettyPrinterPlus.JsonPrettyPrinterInternals;
-using ServiceStack.Text;
+using MongoDB.Bson;
+
 
 namespace EtoolTech.Mongo.KeyValueClient.UI
 {
@@ -27,9 +29,9 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         private void ObjectViewerLoad(object sender, EventArgs e)
         {
             try
-            {                                
+            {
                 Cursor = Cursors.WaitCursor;
-                var cacheClient = new Client(Prefix);                
+                var cacheClient = new Client(Prefix);
                 tbKey.Text = Key;
                 object data = cacheClient.Get(Key);
                 Text = string.Format("Object Viewer | Key : {0} | Lenght: ", Key);
@@ -40,7 +42,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                 }
                 else
                 {
-                    string strdata = data.ToXml();
+                    string strdata = ToXml(data);
                     //AddColouredText(IndentXml(strdata));
                     IndentXml(strdata);
                     richTbXml.Clear();
@@ -53,6 +55,21 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             }
         }
 
+
+        private string ToXml(object data)
+        {
+            Type objectType = data.GetType();
+            var xmlSerializer = new XmlSerializer(objectType);
+            var memoryStream = new MemoryStream();
+            using (var xmlTextWriter = new XmlTextWriter(memoryStream, Encoding.UTF8) {Formatting = Formatting.Indented})
+            {
+                xmlSerializer.Serialize(xmlTextWriter, data);
+                memoryStream = (MemoryStream) xmlTextWriter.BaseStream;
+                string xmlText = new UTF8Encoding().GetString(memoryStream.ToArray());
+                memoryStream.Dispose();
+                return xmlText;
+            }
+        }
 
         private string BeautifyJson(string json)
         {
