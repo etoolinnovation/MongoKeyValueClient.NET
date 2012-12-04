@@ -45,8 +45,9 @@ namespace EtoolTech.Mongo.KeyValueClient
         }
 
         private MongoServer GetServer(string connectionString = null)
-        {            
-            return MongoServer.Create(connectionString ?? ConnectionString);
+        {
+            var client = new MongoClient(connectionString ?? ConnectionString);
+            return client.GetServer();
         }
 
         private MongoCollection Collection
