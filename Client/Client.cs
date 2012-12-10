@@ -140,7 +140,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         {
             MongoCollection collection = PrimaryCollection;
             IMongoQuery query = Query.EQ("_id", key);
-            var result = collection.Remove(query, SafeMode.True);
+            var result = collection.Remove(query);
             
             if (!String.IsNullOrEmpty(result.ErrorMessage))
                 throw new Exception(result.ErrorMessage);
