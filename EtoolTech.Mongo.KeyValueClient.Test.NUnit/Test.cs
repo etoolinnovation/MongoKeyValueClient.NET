@@ -110,9 +110,9 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
 				var c = new Client();
 				c.Get(keys);
 			}
-			catch(System.IO.FileFormatException)
+			catch(Exception e)
 			{
-				//ok
+				Assert.AreEqual(e.GetBaseException().GetType().ToString(), typeof(System.IO.FileFormatException).ToString());
 			}
         }
     }
