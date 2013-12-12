@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Security.Cryptography;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -11,13 +12,11 @@ namespace EtoolTech.Mongo.KeyValueClient
 {
     public class Client
     {
-        private static readonly string ConnectionString =
-            ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"];
+        private static readonly string ConnectionString = Config.Instance.ConnStr;
 
-        private static string _dataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
+        private static string _dataBaseName = Config.Instance.Database;
 
-        private static string _collectionName = ConfigurationManager.AppSettings["CompanyKey"] +
-                                                ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
+        private static string _collectionName = ConfigurationManager.AppSettings["CompanyKey"] + Config.Instance.Collection;
 
         private static MongoCollection _col;
         private static MongoCollection _primaryCol;
@@ -29,8 +28,8 @@ namespace EtoolTech.Mongo.KeyValueClient
         {           
             if (!String.IsNullOrEmpty(preFix))
             {
-                 _dataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
-                _collectionName = preFix + ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
+                 _dataBaseName = Config.Instance.Database;
+                 _collectionName = preFix + Config.Instance.Collection;
                 _col = null;
                 _primaryCol = null;
                 _isReplicaSet = null;
@@ -96,21 +95,9 @@ namespace EtoolTech.Mongo.KeyValueClient
             }
         }
 
-        public object GetForWrite(string key)
-        {
-            MongoCollection collection = PrimaryCollection;
-            IMongoQuery query = Query.EQ("_id", key);
-
-            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
-
-            if (!cacheItems.Any())
-                return null;
-
-            return Serializer.ToObjectSerialize<object>(cacheItems.First().Data);
-
-        }
-
-        public object Get(string key)
+        #region GET
+    
+        public object Get(string key, Type T)
         {
             MongoCollection collection = Collection;
             IMongoQuery query = Query.EQ("_id", key);
@@ -120,8 +107,122 @@ namespace EtoolTech.Mongo.KeyValueClient
             if (!cacheItems.Any())
                 return null;
 
-            return Serializer.ToObjectSerialize<object>(cacheItems.First().Data);
+            return Serializer.ToObjectSerialize(cacheItems.First().Data, T);
         }
+
+
+        public string GetAsString(string key)
+        {
+            MongoCollection collection = Collection;
+            IMongoQuery query = Query.EQ("_id", key);
+
+            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+
+            if (!cacheItems.Any())
+                return null;
+
+            return (string) Serializer.ToJsonStringSerialize(cacheItems.First().Data, typeof(object));
+        }
+        
+        
+        public T Get<T>(string key)
+        {
+            MongoCollection collection = Collection;
+            IMongoQuery query = Query.EQ("_id", key);
+
+            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+
+            if (!cacheItems.Any())
+                return default(T);
+
+            return Serializer.ToObjectSerialize<T>(cacheItems.First().Data);
+        }
+
+        public object GetForWrite(string key, Type T)
+        {
+            MongoCollection collection = PrimaryCollection;
+            IMongoQuery query = Query.EQ("_id", key);
+
+            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+
+            if (!cacheItems.Any())
+                return null;
+
+            return Serializer.ToObjectSerialize(cacheItems.First().Data, T);
+
+        }
+
+        public T GetForWrite<T>(string key)
+        {
+            MongoCollection collection = PrimaryCollection;
+            IMongoQuery query = Query.EQ("_id", key);
+
+            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+
+            if (!cacheItems.Any())
+                return default(T);
+
+            return Serializer.ToObjectSerialize<T>(cacheItems.First().Data);
+        }
+
+        #endregion
+
+        #region GET LIST
+    
+        public IDictionary<string, T> Get<T>(List<string> keyList)
+        {
+            MongoCollection collection = Collection;
+
+            IMongoQuery query = Query.In("_id", new BsonArray(keyList));
+
+
+            IDictionary<string, T> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
+                                                                                             item => Serializer.ToObjectSerialize<T>(item.Data));
+            foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
+            {
+                result.Add(key, default(T));
+            }
+
+            return result;
+        }
+
+        public IDictionary<string, object> Get(Dictionary<Type, List<string>> keys)
+        {
+            MongoCollection collection = Collection;
+
+            var keyList = new List<string>();
+            foreach (KeyValuePair<Type, List<string>> pair in keys)
+            {
+                keyList.AddRange(pair.Value);
+            }
+
+            IMongoQuery query = Query.In("_id", new BsonArray(keyList));            
+            var cacheDataCollection = collection.FindAs<CacheData>(query);
+
+             IDictionary<string, object> result = new Dictionary<string, object>();
+
+            foreach (var cacheData in cacheDataCollection)
+            {
+                CacheData data = cacheData;
+                var t = from k in keys where k.Value.Contains(data._id) select k;
+                var keyValuePairs = t as IList<KeyValuePair<Type, List<string>>> ?? t.ToList();
+                if (keyValuePairs.Any())
+                {
+                    Type T = keyValuePairs.First().Key;
+                    result.Add(data._id, Serializer.ToObjectSerialize(data.Data, T));
+                }
+            }
+
+            foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
+            {
+                result.Add(key, null);
+            }
+
+            return result;
+        }
+
+        #endregion
+
 
 
         public bool Add(string key, object data)
@@ -188,27 +289,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             return result;
         }
 
-        public IDictionary<string, object> Get(List<string> keyList)
-        {
-            MongoCollection collection = Collection;
-
-            IMongoQuery query = Query.In("_id", new BsonArray(keyList));
-            
-
-            IDictionary<string, object> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
-                                                                                                  item =>
-                                                                                                  Serializer.
-                                                                                                      ToObjectSerialize
-                                                                                                      <object>(item.Data));
-            
-
-            foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
-            {
-                result.Add(key, null);
-            }
-
-            return result;
-        }
+     
 
         public IDictionary<string, object> GetRegex(string pattern)
         {
@@ -221,31 +302,7 @@ namespace EtoolTech.Mongo.KeyValueClient
                                                                     Serializer.ToObjectSerialize<object>(item.Data));
         }
 
-        public T Get<T>(string key)
-        {
-            MongoCollection collection = Collection;
-            IMongoQuery query = Query.EQ("_id", key);
-
-            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
-
-            if (!cacheItems.Any())
-                return default(T);
-
-            return Serializer.ToObjectSerialize<T>(cacheItems.First().Data);
-        }
-
-        public T GetForWrite<T>(string key)
-        {
-            MongoCollection collection = PrimaryCollection;
-            IMongoQuery query = Query.EQ("_id", key);
-
-            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
-
-            if (!cacheItems.Any())
-                return default(T);
-
-            return Serializer.ToObjectSerialize<T>(cacheItems.First().Data);
-        }
+   
 
 
         public long SizeAsKb(string key)
@@ -266,7 +323,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         public long DecompressSizeAsKb(string key)
         {
             
-            if (ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] != "1")
+            if (!Config.Instance.CompresionEnabled)
                 return SizeAsKb(key);
 
             MongoCollection collection = Collection;

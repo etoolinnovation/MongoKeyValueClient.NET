@@ -22,18 +22,18 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         private void MongoCacheStatsLoad(object sender, EventArgs e)
         {
 
-            if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]))
+            if (String.IsNullOrEmpty(Config.Instance.Database))
             {
                 _multiDatabase = true;
                 comboCollections.Items.Add("");
-                var mongoServer = MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]);                
+                var mongoServer = MongoServer.Create(Config.Instance.ConnStr);                
                 foreach (string databaseName in mongoServer.GetDatabaseNames())
                 {                    
                     foreach (string collectionName in mongoServer.GetDatabase(databaseName).GetCollectionNames())
                     {
-                        if (collectionName.EndsWith(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]))
+                        if (collectionName.EndsWith(Config.Instance.Collection))
                         {
-                            string preFix = collectionName.Replace(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"], "");
+                            string preFix = collectionName.Replace(Config.Instance.Collection, "");
                             if (!_prefixDatabase.ContainsKey(preFix))
                             {
                                 comboCollections.Items.Add(preFix);
@@ -47,19 +47,26 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             }
             else
             {
-                if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["PrefixCollection"]))
+                if (String.IsNullOrEmpty(Config.Instance.PrefixCollection))
                 {
                     comboCollections.Items.Add("");
                     foreach (
                         string collectionName in
-                            MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]).
-                                GetDatabase(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]).
+                            MongoServer.Create(Config.Instance.ConnStr).
+                                GetDatabase(Config.Instance.Database).
                                 GetCollectionNames())
                     {
-                        if (collectionName.EndsWith(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]))
+                        if (collectionName == Config.Instance.Collection)
+                        {
+                            comboCollections.Items.Add(collectionName);
+                        }
+                        else if (
+                            collectionName.EndsWith(Config.Instance.Collection))
+                        {
                             comboCollections.Items.Add(
-                                collectionName.Replace(
-                                    ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"], ""));
+                                collectionName.Replace(Config.Instance.Collection, ""));
+                        }
+
                     }
 
                     comboCollections.SelectedIndex = 0;
@@ -69,7 +76,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                     comboCollections.Items.Add("");
                     foreach (
                         string companyKey in
-                            ConfigurationManager.AppSettings["PrefixCollection"].Split('|'))
+                            Config.Instance.PrefixCollection.Split('|'))
                     {
                         comboCollections.Items.Add(companyKey);
                     }
@@ -87,12 +94,15 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             {
                 Cursor = Cursors.WaitCursor;
                 if (_multiDatabase) 
-                    ConfigurationManager.AppSettings["MongoKeyValueClient_Database"] = _prefixDatabase[comboCollections.SelectedItem.ToString()];
+                    Config.Instance.Database = _prefixDatabase[comboCollections.SelectedItem.ToString()];
 
-                _client = new Client(comboCollections.SelectedItem.ToString());
+                if (comboCollections.SelectedItem.ToString() == Config.Instance.Collection)
+                    _client = new Client();
+                else
+                    _client = new Client(comboCollections.SelectedItem.ToString());
                 listBoxKeys.Items.Clear();                
 
-                if (ConfigurationManager.AppSettings["MongoKeyValueClient_ShowSizes"] == "1")
+                if (Config.Instance.ShowSizes)
                 {
                  
                 }             
@@ -115,14 +125,13 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             text = GetNodes().Aggregate(text, (current, node) => current + (node + " | "));
 
             text += string.Format("Compresion: {0}",
-                                  (ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1"));
+                                  (Config.Instance.CompresionEnabled));
 
             text += Environment.NewLine;
             text += string.Format("Server Keys: {0}", _client.GetAllKeysAsCursor().Count());
             text += string.Format(" | Local Keys: {0}", listBoxKeys.Items.Count);
-            text += string.Format(" | Database: {0}", ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]);
-            text += string.Format(" | Collection: {0}",
-                                  ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]);
+            text += string.Format(" | Database: {0}", Config.Instance.Database);
+            text += string.Format(" | Collection: {0}",Config.Instance.Collection);
             textBoxStats.Text = text;
         }
 
@@ -176,8 +185,9 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
         private static IEnumerable<string> GetNodes()
         {
-            string constr = ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"];
+            string constr = Config.Instance.ConnStr;
             constr = constr.Replace("mongodb://", "");
+            if (!constr.Contains(',')) return new List<string>() {constr};
             constr = constr.Substring(0, constr.IndexOf("/", StringComparison.Ordinal));
 
             string[] servers = constr.Split(',');

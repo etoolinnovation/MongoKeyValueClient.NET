@@ -28,21 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.richTbXml = new System.Windows.Forms.RichTextBox();
+            this.richTb = new System.Windows.Forms.RichTextBox();
             this.tbFindText = new System.Windows.Forms.TextBox();
             this.buttonFindText = new System.Windows.Forms.Button();
             this.tbKey = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // richTbXml
+            // richTb
             // 
-            this.richTbXml.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTbXml.Location = new System.Drawing.Point(12, 39);
-            this.richTbXml.Name = "richTbXml";
-            this.richTbXml.ReadOnly = true;
-            this.richTbXml.Size = new System.Drawing.Size(737, 537);
-            this.richTbXml.TabIndex = 0;
-            this.richTbXml.Text = "";
+            this.richTb.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTb.Location = new System.Drawing.Point(12, 39);
+            this.richTb.Name = "richTb";
+            this.richTb.ReadOnly = true;
+            this.richTb.Size = new System.Drawing.Size(737, 537);
+            this.richTb.TabIndex = 0;
+            this.richTb.Text = "";
             // 
             // tbFindText
             // 
@@ -78,7 +78,7 @@
             this.Controls.Add(this.tbKey);
             this.Controls.Add(this.tbFindText);
             this.Controls.Add(this.buttonFindText);
-            this.Controls.Add(this.richTbXml);
+            this.Controls.Add(this.richTb);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "ObjectViewer";
@@ -92,7 +92,7 @@
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox richTbXml;
+        private System.Windows.Forms.RichTextBox richTb;
         private System.Windows.Forms.TextBox tbFindText;
         private System.Windows.Forms.Button buttonFindText;
         private System.Windows.Forms.TextBox tbKey;

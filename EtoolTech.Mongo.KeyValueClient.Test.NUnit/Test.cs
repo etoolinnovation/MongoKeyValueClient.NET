@@ -11,6 +11,47 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
     {
 
         [Test]
+        public void TestJson()
+        {
+            var c = new Client();
+            c.RemoveAll();
+
+            var listEmpty = c.Get<List<TestCacheData>>("22");
+
+            var t = new TestCacheData();
+            t.FieldString = "Hola";
+            t.FieldInt = 25;
+            t.FieldFLoat = float.Parse("100,00");
+            t.FieldDateTime = DateTime.Now;
+            t.FieldBool = false;
+
+            c.Add("HOLA_1", t);
+
+            var t2 = c.Get<TestCacheData>("HOLA_1");
+
+            string tstring = c.GetAsString("HOLA_1");
+            
+
+            Assert.AreEqual(t.FieldString, t2.FieldString);
+
+            var list = new List<TestCacheData>();
+            for (int i = 0; i < 100; i++)
+            {
+                var t3 = new TestCacheData();
+                t3.FieldString = "Hola";
+                t3.FieldInt = 25;
+                t3.FieldFLoat = float.Parse("100,00");
+                t3.FieldDateTime = DateTime.Now;
+                t3.FieldBool = false;
+                list.Add(t3);
+            }
+
+            c.Add("HOLA_2", list);            
+
+            var list2 = c.Get<List<TestCacheData>>("HOLA_2");
+        }
+
+        [Test]
         public void TestGetForWrite()
         {
             var c = new Client();
@@ -108,7 +149,7 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
             	System.Threading.Tasks.Parallel.For(0, 5000000, index => keys.Add("THIS_IS_A_CACHE_KAYE" + index.ToString()));
 
 				var c = new Client();
-				c.Get(keys);
+				c.Get<string>(keys);
 			}
 			catch(Exception e)
 			{
