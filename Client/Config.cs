@@ -28,8 +28,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             this.Database = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
             this.Collection = ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
             this.PrefixCollection = ConfigurationManager.AppSettings["PrefixCollection"];
-            this.CompresionEnabled = ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1";
-            this.SerializationMode = ConfigurationManager.AppSettings["MongoKeyValueClient_SerializationMode"];
+            this.CompresionEnabled = ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1";            
             this.CompressionMode = ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionMode"];
             this.ShowSizes = ConfigurationManager.AppSettings["MongoKeyValueClient_ShowSizes"] == "1";
         }
@@ -38,8 +37,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         public string Database { get; set; }
         public string Collection { get; set; }
         public string PrefixCollection { get; set; }
-        public bool CompresionEnabled { get; set; }
-        public string SerializationMode { get; set; }
+        public bool CompresionEnabled { get; set; }        
         public string CompressionMode { get; set; }
         public bool ShowSizes { get; set; }
 

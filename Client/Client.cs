@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Security.Cryptography;
+using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -36,7 +36,6 @@ namespace EtoolTech.Mongo.KeyValueClient
             }
            
         }
-
 
         public MongoDatabase GetDb(string connectionString = null)
         {
@@ -186,6 +185,19 @@ namespace EtoolTech.Mongo.KeyValueClient
             return result;
         }
 
+
+        public IDictionary<string, T> GetRegex<T>(string pattern)
+        {
+            MongoCollection collection = Collection;
+
+            IMongoQuery query = Query.Matches("_id", new BsonRegularExpression(pattern));
+
+            return collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
+                                                                    item =>
+                                                                    Serializer.ToObjectSerialize<T>(item.Data));
+        }
+
+
         public IDictionary<string, object> Get(Dictionary<Type, List<string>> keys)
         {
             MongoCollection collection = Collection;
@@ -223,13 +235,13 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         #endregion
 
-
+        #region Add Remove RemoveAll
 
         public bool Add(string key, object data)
         {
             MongoCollection collection = PrimaryCollection;
             IMongoQuery query = Query.EQ("_id", key);
-            var result = collection.FindAndModify(query, null, Update.Set("Data", Serializer.ToByteArray(data)), false, true);
+            var result = collection.FindAndModify(query, null, Update.Set("Data", Serializer.ObjectToString(data)), false, true);
             
             if (!String.IsNullOrEmpty(result.ErrorMessage))
                 throw new Exception(result.ErrorMessage);
@@ -261,6 +273,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             return collection.FindAllAs<CacheData>().SetFields("_id").ToList().Select(data => data._id).ToList();
         }
 
+        #endregion
 
         public MongoCursor<CacheData> GetAllKeysAsCursor()
         {
@@ -283,49 +296,22 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             foreach (CacheData cacheData in collection.FindAllAs<CacheData>())
             {
-                result.Add(cacheData._id, cacheData.Data.LongLength / 1024);
+                result.Add(cacheData._id, cacheData.Data.Length / 1024);
             }
 
             return result;
         }
 
      
-
-        public IDictionary<string, object> GetRegex(string pattern)
-        {
-            MongoCollection collection = Collection;
-
-            IMongoQuery query = Query.Matches("_id", new BsonRegularExpression(pattern));
-
-            return collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
-                                                                    item =>
-                                                                    Serializer.ToObjectSerialize<object>(item.Data));
-        }
-
-   
-
-
         public long SizeAsKb(string key)
         {
-            MongoCollection collection = Collection;
-            IMongoQuery query = Query.EQ("_id", key);
-            
-
-            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
-
-            if (!cacheItems.Any())
-                return 0;
-
-            return cacheItems.First().Data.LongLength / 1024;
+            return DecompressSizeAsKb(key);
         }
 
 
         public long DecompressSizeAsKb(string key)
         {
-            
-            if (!Config.Instance.CompresionEnabled)
-                return SizeAsKb(key);
-
+                        
             MongoCollection collection = Collection;
             IMongoQuery query = Query.EQ("_id", key);
 
@@ -333,8 +319,11 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             if (!cacheItems.Any())
                 return 0;
+
+            if (!Config.Instance.CompresionEnabled)
+                return SizeAsKb(cacheItems.First().Data);
            
-            return Compression.Decompress(cacheItems.First().Data).LongLength / 1024;
+            return StringCompressor.DecompressString(cacheItems.First().Data).Length / 1024;
         }
 
         #region Nested type: CacheData
@@ -345,7 +334,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             [BsonId]
             public string _id { get; set; }
 
-            public byte[] Data { get; set; }
+            public string Data { get; set; }
         }
 
         #endregion

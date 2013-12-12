@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace EtoolTech.Mongo.KeyValueClient
@@ -8,122 +9,46 @@ namespace EtoolTech.Mongo.KeyValueClient
     internal class Serializer
     {
         private static readonly bool CompresionEnabled = Config.Instance.CompresionEnabled;            
-        private static readonly bool JsonSerilization = Config.Instance.SerializationMode.ToUpper() == "JSON";
+       
 
-
-        internal static byte[] ToByteArray(Object obj)
+        internal static string ObjectToString(Object obj)
         {
-            if (obj == null) return null;
-
-            byte[] data;
-
-            if (JsonSerilization)
-            {
-                string jsonData = JsonConvert.SerializeObject(obj);
-                data = GetBytes(jsonData);
-            }
-            else
-            {
-                using (var ms = new MemoryStream())
-                {
-                    var b = new BinaryFormatter();
-                    b.Serialize(ms, obj);
-                    data = ms.ToArray();
-                    ms.Close();
-                }
-            }
-            return CompresionEnabled ? Compression.Compress(data) : data;
+            string data = JsonConvert.SerializeObject(obj);
+            return CompresionEnabled ? StringCompressor.CompressString(data) : data;            
         }
 
-        internal static string ToJsonStringSerialize(byte[] serializedObject, Type T)
+    
+        #region Serialize
+
+        internal static string ToJsonStringSerialize(string serializedObject, Type T)
         {
             if (serializedObject == null) return null;
 
-            if (CompresionEnabled) serializedObject = Compression.Decompress(serializedObject);
-           
-            if (JsonSerilization)
-            {
-                return JsonConvert.DeserializeObject(GetString(serializedObject), T).ToString();
-            }
-            else
-            {
-                using (var ms = new MemoryStream())
-                {
-                    ms.Write(serializedObject, 0, serializedObject.Length);
-                    ms.Seek(0, 0);
-                    var b = new BinaryFormatter();
-                    Object obj = b.Deserialize(ms);
-                    ms.Close();
-                    return JsonConvert.SerializeObject(obj);
-                }
-            }
-            
+            if (CompresionEnabled) serializedObject = StringCompressor.DecompressString(serializedObject);
+
+            return JsonConvert.DeserializeObject(serializedObject, T).ToString();
+
         }
 
-        internal static object ToObjectSerialize(byte[] serializedObject, Type T)
+    
+
+        internal static object ToObjectSerialize(string serializedObject, Type T)
         {
             if (serializedObject == null) return null;
 
-            if (CompresionEnabled) serializedObject = Compression.Decompress(serializedObject);
+            if (CompresionEnabled) serializedObject = StringCompressor.DecompressString(serializedObject);
 
-            Object obj;
-
-            if (JsonSerilization)
-            {
-                obj = JsonConvert.DeserializeObject(GetString(serializedObject), T);
-            }
-            else
-            {
-                using (var ms = new MemoryStream())
-                {
-                    ms.Write(serializedObject, 0, serializedObject.Length);
-                    ms.Seek(0, 0);
-                    var b = new BinaryFormatter();
-                    obj = b.Deserialize(ms);
-                    ms.Close();
-                }
-            }
+            Object obj = JsonConvert.DeserializeObject(serializedObject, T);
             return Convert.ChangeType(obj, T);
+           
         }
 
-        internal static T ToObjectSerialize<T>(byte[] serializedObject)
+        internal static T ToObjectSerialize<T>(string serializedObject)
         {
-            if (serializedObject == null) return default(T);
-
-            if (CompresionEnabled) serializedObject = Compression.Decompress(serializedObject);
-
-            Object obj;
-
-            if (JsonSerilization)
-            {
-                obj = JsonConvert.DeserializeObject(GetString(serializedObject),typeof(T));
-            }
-            else
-            {
-                using (var ms = new MemoryStream())
-                {
-                    ms.Write(serializedObject, 0, serializedObject.Length);
-                    ms.Seek(0, 0);
-                    var b = new BinaryFormatter();
-                    obj = b.Deserialize(ms);
-                    ms.Close();
-                }
-            }
-            return (T) obj;
+            return (T) ToObjectSerialize(serializedObject, typeof(T));
         }
+    
+        #endregion
 
-        static byte[] GetBytes(string str)
-        {
-            var bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-            return bytes;
-        }
-
-        static string GetString(byte[] bytes)
-        {
-            var chars = new char[bytes.Length / sizeof(char)];
-            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
-            return new string(chars);
-        }
     }
 }
