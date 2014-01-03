@@ -13,14 +13,14 @@ class Serializer:
         if self._compression_enabled:
             data = string_compressor.decompress(data)
 
-        json_data = json.loads(data)
-        if isinstance(json_data, list):
+        dict_data = json.loads(data)
+        if isinstance(dict_data, list):
             result = []
-            for item in json_data:
+            for item in dict_data:
                 result.append(Serializer.dic_2_obj(item))
             return result
         else:
-            return Serializer.dic_2_obj(json_data)
+            return Serializer.dic_2_obj(dict_data)
 
     @staticmethod
     def dic_2_obj(d):
