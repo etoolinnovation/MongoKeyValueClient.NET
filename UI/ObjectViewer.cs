@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Configuration;
 using System.Drawing;
-using System.IO;
-using System.Text;
 using System.Windows.Forms;
-using System.Xml;
-using System.Xml.Serialization;
 using JsonPrettyPrinterPlus;
 using JsonPrettyPrinterPlus.JsonPrettyPrinterInternals;
-using MongoDB.Bson;
-using Newtonsoft.Json;
-using Formatting = System.Xml.Formatting;
 
 
 namespace EtoolTech.Mongo.KeyValueClient.UI
