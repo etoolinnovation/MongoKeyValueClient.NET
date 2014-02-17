@@ -16,7 +16,7 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
             var c = new Client();
             c.RemoveAll();
 
-            var listEmpty = c.Get<List<TestCacheData>>("22");
+            var listEmpty = c.Get("22");
 
             var t = new TestCacheData();
             t.FieldString = "Hola";
@@ -27,7 +27,7 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
 
             c.Add("HOLA_1", t);
 
-            var t2 = c.Get<TestCacheData>("HOLA_1");
+            var t2 = (TestCacheData) c.Get("HOLA_1");
 
             string tstring = c.GetAsString("HOLA_1");
             
@@ -48,7 +48,7 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
 
             c.Add("HOLA_2", list);            
 
-            var list2 = c.Get<List<TestCacheData>>("HOLA_2");
+            var list2 = c.Get("HOLA_2");
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
 
              foreach (string key in keys)
              {
-                 var value = c.Get<int>(key);
+                 var value = c.Get(key);
                  Assert.AreEqual(key, "Key");
                  Assert.AreEqual(100000, value);
 
@@ -124,7 +124,7 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
 
             foreach (string key in keys)
             {
-                var value = c.Get<int>(key);
+                var value = c.Get(key);
                 Assert.AreEqual(key, value.ToString());
 
                 c.Remove(key);
