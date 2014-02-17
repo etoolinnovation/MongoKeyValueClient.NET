@@ -9,11 +9,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 {
     internal static class StringCompressor
     {
-        /// <summary>
-        /// Compresses the string.
-        /// </summary>
-        /// <param name="text">The text.</param>
-        /// <returns></returns>
+      
         public static string CompressString(string text)
         {
             byte[] buffer = Encoding.UTF8.GetBytes(text);
@@ -34,11 +30,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             return Convert.ToBase64String(gZipBuffer);
         }
 
-        /// <summary>
-        /// Decompresses the string.
-        /// </summary>
-        /// <param name="compressedText">The compressed text.</param>
-        /// <returns></returns>
+    
         public static string DecompressString(string compressedText)
         {
             byte[] gZipBuffer = Convert.FromBase64String(compressedText);

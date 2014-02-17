@@ -17,7 +17,7 @@ namespace EtoolTech.Mongo.KeyValueClient
     
         #region Serialize
 
-        internal static string ToJsonStringSerialize(string serializedObject, Type T)
+        internal static string ToJsonStringDeserialize(string serializedObject, Type T)
         {
             if (serializedObject == null) return null;
 
@@ -29,7 +29,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
     
 
-        internal static object ToObjectSerialize(string serializedObject, Type T)
+        internal static object ToObjectDeserialize(string serializedObject, Type T)
         {
             if (serializedObject == null) return null;
 
@@ -40,9 +40,9 @@ namespace EtoolTech.Mongo.KeyValueClient
            
         }
 
-        internal static T ToObjectSerialize<T>(string serializedObject)
+        internal static T ToObjectDeserialize<T>(string serializedObject)
         {
-            return (T) ToObjectSerialize(serializedObject, typeof(T));
+            return (T) ToObjectDeserialize(serializedObject, typeof(T));
         }
     
         #endregion

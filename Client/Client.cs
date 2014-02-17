@@ -94,18 +94,17 @@ namespace EtoolTech.Mongo.KeyValueClient
             }
         }
         
+        private static Dictionary<string,Type> _objecTypesCache = new Dictionary<string, Type>(); 
         private static Type GetObjectType(CacheData cacheData)
         {
-            string fullTypeName = cacheData.NameSpace == "System" ? cacheData.Type : String.Format("{0},{1}", cacheData.Type, cacheData.NameSpace);
+            var fullTypeName = cacheData.NameSpace == "System" ? cacheData.Type : String.Format("{0},{1}", cacheData.Type, cacheData.NameSpace);
 
             Type cacheType = Type.GetType(fullTypeName);
 
-            if (cacheData.IsList)
-            {
-                Type listGenericType = typeof(List<>);
-                cacheType = listGenericType.MakeGenericType(cacheType);
-            }
-            return cacheType;
+            if (!cacheData.IsList) return cacheType;
+
+            var listGenericType = typeof(List<>);
+            return listGenericType.MakeGenericType(cacheType);            
         }
 
         #region GET
@@ -120,7 +119,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             if (!cacheItems.Any())
                 return null;
 
-            return Serializer.ToObjectSerialize(cacheItems.First().Data, T);
+            return Serializer.ToObjectDeserialize(cacheItems.First().Data, T);
         }
 
 
@@ -136,7 +135,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             var cacheData = cacheItems.First();
 
-            return Serializer.ToObjectSerialize(cacheData.Data, GetObjectType(cacheData));
+            return Serializer.ToObjectDeserialize(cacheData.Data, GetObjectType(cacheData));
         }
 
         public object Get<T>(string key)
@@ -151,7 +150,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             var cacheData = cacheItems.First();
 
-            return Serializer.ToObjectSerialize<T>(cacheData.Data);
+            return Serializer.ToObjectDeserialize<T>(cacheData.Data);
         }
 
         public object GetForWrite(string key, Type T)
@@ -164,7 +163,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             if (!cacheItems.Any())
                 return null;
 
-            return Serializer.ToObjectSerialize(cacheItems.First().Data, T);
+            return Serializer.ToObjectDeserialize(cacheItems.First().Data, T);
         }
 
         public object GetForWrite(string key)
@@ -179,7 +178,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             var cacheData = cacheItems.First();
 
-            return Serializer.ToObjectSerialize(cacheItems.First().Data, GetObjectType(cacheData));
+            return Serializer.ToObjectDeserialize(cacheItems.First().Data, GetObjectType(cacheData));
 
         }
 
@@ -193,7 +192,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             if (!cacheItems.Any())
                 return default(T);
 
-            return Serializer.ToObjectSerialize<T>(cacheItems.First().Data);
+            return Serializer.ToObjectDeserialize<T>(cacheItems.First().Data);
         }
 
         public string GetAsString(string key)
@@ -206,7 +205,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             if (!cacheItems.Any())
                 return null;
 
-            return (string)Serializer.ToJsonStringSerialize(cacheItems.First().Data, typeof(object));
+            return (string)Serializer.ToJsonStringDeserialize(cacheItems.First().Data, typeof(object));
         }
 
         #endregion
@@ -219,7 +218,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             IMongoQuery query = Query.In("_id", new BsonArray(keyList));
 
             IDictionary<string, object> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
-                                                                                             item => Serializer.ToObjectSerialize(item.Data,GetObjectType(item)));
+                                                                                             item => Serializer.ToObjectDeserialize(item.Data,GetObjectType(item)));
             foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
             {
                 result.Add(key, null);
@@ -236,7 +235,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
 
             IDictionary<string, T> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
-                                                                                             item => Serializer.ToObjectSerialize<T>(item.Data));
+                                                                                             item => Serializer.ToObjectDeserialize<T>(item.Data));
             foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
             {
                 result.Add(key, default(T));
@@ -268,7 +267,7 @@ namespace EtoolTech.Mongo.KeyValueClient
                 if (keyValuePairs.Any())
                 {
                     Type T = keyValuePairs.First().Key;
-                    result.Add(data._id, Serializer.ToObjectSerialize(data.Data, T));
+                    result.Add(data._id, Serializer.ToObjectDeserialize(data.Data, T));
                 }
             }
 
@@ -288,7 +287,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             return collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
                                                                     item =>
-                                                                    Serializer.ToObjectSerialize<T>(item.Data));
+                                                                    Serializer.ToObjectDeserialize<T>(item.Data));
         }
 
         public IDictionary<string, object> GetRegex(string pattern)
@@ -299,7 +298,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             return collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
                                                                     item =>
-                                                                    Serializer.ToObjectSerialize(item.Data, GetObjectType(item)));
+                                                                    Serializer.ToObjectDeserialize(item.Data, GetObjectType(item)));
         }
 
 
