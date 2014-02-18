@@ -122,6 +122,9 @@ namespace EtoolTech.Mongo.KeyValueClient
             
             if (cacheData.DataType == "OBJECT") return cacheType;
 
+            var dictType = typeof (Dictionary<,>);
+            var dic = dictType.MakeGenericType(typeof(string), typeof(List<CacheData>));
+
 
             var listGenericType = typeof(List<>);
             return listGenericType.MakeGenericType(cacheType);            
