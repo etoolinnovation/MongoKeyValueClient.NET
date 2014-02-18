@@ -49,6 +49,10 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
             c.Add("HOLA_2", list);            
 
             var list2 = c.Get("HOLA_2");
+
+            var dic = new Dictionary<string, List<TestCacheData>>();
+            dic.Add("key",list);
+            c.Add("HOLA_3", dic);            
         }
 
         [Test]

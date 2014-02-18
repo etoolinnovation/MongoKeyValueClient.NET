@@ -97,11 +97,31 @@ namespace EtoolTech.Mongo.KeyValueClient
         private static Dictionary<string,Type> _objecTypesCache = new Dictionary<string, Type>(); 
         private static Type GetObjectType(CacheData cacheData)
         {
-            var fullTypeName = cacheData.NameSpace == "System" ? cacheData.Type : String.Format("{0},{1}", cacheData.Type, cacheData.NameSpace);
+
+            bool isNestedType = false;
+            string nestedTypeName = string.Empty;
+
+            if (cacheData.Type.Contains("+"))
+            {
+                string[] tmpArray = cacheData.Type.Split('+');
+                cacheData.Type = tmpArray[0];
+                nestedTypeName = tmpArray[1];
+                isNestedType = true;
+            }
+            
+            var fullTypeName = cacheData.Assembly == "System" ? cacheData.Type : String.Format("{0},{1}", cacheData.Type, cacheData.Assembly);
+
 
             Type cacheType = Type.GetType(fullTypeName);
 
-            if (!cacheData.IsList) return cacheType;
+            if (isNestedType)
+            {
+                cacheType = cacheType.GetNestedType(nestedTypeName);
+            }
+
+            
+            if (cacheData.DataType == "OBJECT") return cacheType;
+
 
             var listGenericType = typeof(List<>);
             return listGenericType.MakeGenericType(cacheType);            
@@ -138,7 +158,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             return Serializer.ToObjectDeserialize(cacheData.Data, GetObjectType(cacheData));
         }
 
-        public object Get<T>(string key)
+        public T Get<T>(string key)
         {
             MongoCollection collection = Collection;
             IMongoQuery query = Query.EQ("_id", key);
@@ -146,7 +166,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
 
             if (!cacheItems.Any())
-                return null;
+                return default(T);
 
             var cacheData = cacheItems.First();
 
@@ -218,7 +238,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             IMongoQuery query = Query.In("_id", new BsonArray(keyList));
 
             IDictionary<string, object> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
-                                                                                             item => Serializer.ToObjectDeserialize(item.Data,GetObjectType(item)));
+                                                                                             item => Serializer.ToObjectDeserialize(item.Data, GetObjectType(item)));
             foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
             {
                 result.Add(key, null);
@@ -314,27 +334,50 @@ namespace EtoolTech.Mongo.KeyValueClient
             IMongoQuery query = Query.EQ("_id", key);
 
             string TypeName = string.Empty;
-            string NameSpace = string.Empty;
-            bool IsList = false;
+            string AssemblyName = string.Empty;
+            string DataType = string.Empty;
 
             var list = data as IList;
+            var dic = data as IDictionary;
             if (list != null)
             {
                 var dataType = data.GetType();
                 var itemType = dataType.GetGenericArguments()[0];
                 TypeName = itemType.FullName;
-                NameSpace = itemType.Namespace;
-                IsList = true;
+                AssemblyName = itemType.Assembly.FullName.Split(',')[0].Trim();
+                DataType = "LIST";
+            }
+            else if (dic != null)
+            {
+                DataType = "DICT";
+                var dataType = data.GetType();
+                var itemType = dataType.GetGenericArguments()[0];
+                var list1 = itemType as IList;
+                if (list1 != null)
+                {
+                    itemType = itemType.GetGenericArguments()[0];                    
+                }
+
+                var itemType2 = dataType.GetGenericArguments()[1];
+                var list2 = itemType2 as IList;
+                if (list2 != null)
+                {
+                    itemType2 = itemType.GetGenericArguments()[0];
+                }
+
+                TypeName = itemType.FullName + "," + itemType2.FullName;
+                AssemblyName = itemType.Assembly.FullName.Split(',')[0].Trim() + "," + itemType2.Assembly.FullName.Split(',')[0].Trim();
+               
             }
             else
             {
                 var dataType = data.GetType();
                 TypeName = dataType.FullName;
-                NameSpace = dataType.Namespace;
-                IsList = false;
+                AssemblyName = dataType.Namespace;
+                DataType = "OBJECT";
             }
 
-            var result = collection.FindAndModify(query, null, Update.Set("Data", Serializer.ObjectToString(data)).Set("Type",TypeName).Set("IsList", IsList).Set("NameSpace", NameSpace), false, true);
+            var result = collection.FindAndModify(query, null, Update.Set("Data", Serializer.ObjectToString(data)).Set("Type",TypeName).Set("DataType", DataType).Set("Assembly", AssemblyName), false, true);
             
             if (!String.IsNullOrEmpty(result.ErrorMessage))
                 throw new Exception(result.ErrorMessage);
@@ -365,7 +408,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             MongoCollection collection = Collection;
             return collection.FindAllAs<CacheData>().SetFields("_id").ToList().Select(data => data._id).ToList();
         }
-
+        
         #endregion
 
         public MongoCursor<CacheData> GetAllKeysAsCursor()
@@ -431,9 +474,9 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             public string Type { get; set; }
 
-            public string NameSpace { get; set; }
+            public string Assembly { get; set; }
 
-            public bool IsList { get; set; }
+            public string DataType { get; set; }
         }
 
         #endregion
