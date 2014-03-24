@@ -1,12 +1,13 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json;
 
 namespace EtoolTech.Mongo.KeyValueClient
 {
     internal class Serializer
     {
-        private static readonly bool CompresionEnabled = Config.Instance.CompresionEnabled;            
-       
+        private static readonly bool CompresionEnabled = Config.Instance.CompresionEnabled;
 
         internal static string ObjectToString(Object obj)
         {
@@ -15,7 +16,6 @@ namespace EtoolTech.Mongo.KeyValueClient
         }
 
     
-        #region Serialize
 
         internal static string ToJsonStringDeserialize(string serializedObject, Type T)
         {
@@ -44,8 +44,8 @@ namespace EtoolTech.Mongo.KeyValueClient
         {
             return (T) ToObjectDeserialize(serializedObject, typeof(T));
         }
-    
-        #endregion
+
+  
 
     }
 }

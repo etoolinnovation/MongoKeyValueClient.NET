@@ -9,7 +9,7 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
     [TestFixture]
     public class Test
     {
-
+    
         [Test]
         public void TestJson()
         {
@@ -46,13 +46,22 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
                 list.Add(t3);
             }
 
-            c.Add("HOLA_2", list);            
+            c.Add("HOLA_2", list);
 
-            var list2 = c.Get("HOLA_2");
+            var list3 = c.Get("HOLA_2");
 
-            var dic = new Dictionary<string, List<TestCacheData>>();
+            var list2 = new List<List<TestCacheData>>();
+
+            list2.Add(list);
+            c.Add("HOLA_99", list2);
+            var list99 = c.Get("HOLA_99");
+
+
+
+            var dic = new Dictionary<string, List<TestCacheData>>();          
             dic.Add("key",list);
-            c.Add("HOLA_3", dic);            
+            c.Add("HOLA_3", dic);
+            var dicr = c.Get("HOLA_3"); 
         }
 
         [Test]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
@@ -67,15 +68,11 @@ namespace EtoolTech.Mongo.KeyValueClient
                 {
                     return _col ?? (_col = GetDb().GetCollection(_collectionName));
                 }
-                else
+                if (String.IsNullOrEmpty(_primaryConnectionString))
                 {
-                    if (String.IsNullOrEmpty(_primaryConnectionString))
-                    {
-                        _primaryConnectionString = ConnectionString + ";readPreference=primary";
-                    }
-                    return _primaryCol ?? (_primaryCol = GetDb(_primaryConnectionString).GetCollection(_collectionName));
+                    _primaryConnectionString = ConnectionString + ";readPreference=primary";
                 }
-
+                return _primaryCol ?? (_primaryCol = GetDb(_primaryConnectionString).GetCollection(_collectionName));
             }
         }
 
@@ -93,41 +90,133 @@ namespace EtoolTech.Mongo.KeyValueClient
                 return false;
             }
         }
-        
-        private static Dictionary<string,Type> _objecTypesCache = new Dictionary<string, Type>(); 
-        private static Type GetObjectType(CacheData cacheData)
+
+        private static readonly Object CacheTypesLockObject = new Object();
+        private readonly Dictionary<string, CacheType> _cacheTypes = new Dictionary<string, CacheType>();
+
+        private CacheType CreateCacheType(Type t)
         {
-
-            bool isNestedType = false;
-            string nestedTypeName = string.Empty;
-
-            if (cacheData.Type.Contains("+"))
+            if (_cacheTypes.ContainsKey(t.FullName))
             {
-                string[] tmpArray = cacheData.Type.Split('+');
-                cacheData.Type = tmpArray[0];
-                nestedTypeName = tmpArray[1];
-                isNestedType = true;
-            }
-            
-            var fullTypeName = cacheData.Assembly == "System" ? cacheData.Type : String.Format("{0},{1}", cacheData.Type, cacheData.Assembly);
-
-
-            Type cacheType = Type.GetType(fullTypeName);
-
-            if (isNestedType)
-            {
-                cacheType = cacheType.GetNestedType(nestedTypeName);
+                return _cacheTypes[t.FullName];
             }
 
-            
-            if (cacheData.DataType == "OBJECT") return cacheType;
+            lock (CacheTypesLockObject)
+            {
+                if (_cacheTypes.ContainsKey(t.FullName))
+                {
+                    return _cacheTypes[t.FullName];
+                }
 
-            var dictType = typeof (Dictionary<,>);
-            var dic = dictType.MakeGenericType(typeof(string), typeof(List<CacheData>));
+                CacheType cacheType;
+
+                if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof (List<>))
+                {
+                    Type itemType = t.GetGenericArguments()[0];
+                    cacheType = new CacheType
+                    {
+                        Type = t.FullName,
+                        Assembly = t.Assembly.FullName.Split(',')[0].Trim(),
+                        DataType = "LIST",
+                        Arguments = new List<CacheType>()
+                    };
+                    CacheType argType = CreateCacheType(itemType);
+
+                    cacheType.Arguments.Add(argType);
+                }
+                else if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof (Dictionary<,>))
+                {
+                    Type itemType = t.GetGenericArguments()[0];
+                    Type itemType2 = t.GetGenericArguments()[1];
+                    cacheType = new CacheType
+                    {
+                        Type = t.FullName,
+                        Assembly = t.Assembly.FullName.Split(',')[0].Trim(),
+                        DataType = "DICT",
+                        Arguments = new List<CacheType>()
+                    };
+                    cacheType.Arguments.Add(CreateCacheType(itemType));
+                    cacheType.Arguments.Add(CreateCacheType(itemType2));
+                }
+                else
+                {
+                    cacheType = new CacheType
+                    {
+                        Type = t.FullName,
+                        Assembly = t.Assembly.FullName.Split(',')[0].Trim(),
+                        DataType = "OBJECT",
+                        Arguments = new List<CacheType>()
+                    };
+                }
+
+                _cacheTypes.Add(t.FullName, cacheType);
+            }
+
+            return _cacheTypes[t.FullName];
+        }
 
 
-            var listGenericType = typeof(List<>);
-            return listGenericType.MakeGenericType(cacheType);            
+        private static readonly Object TypesLockObject = new Object();
+
+        private static Dictionary<string, Type> _types = new Dictionary<string, Type>();
+    
+        private static Type GetObjectType(CacheType cacheData)
+        {
+            if (_types.ContainsKey(cacheData.Type))
+            {
+                return _types[cacheData.Type];
+            }
+            lock (TypesLockObject)
+            {
+
+                if (_types.ContainsKey(cacheData.Type))
+                {
+                    return _types[cacheData.Type];
+                }
+                    
+                if (cacheData.DataType == "OBJECT")
+                {
+                    bool isNestedType = false;
+                    string nestedTypeName = string.Empty;
+
+                    if (cacheData.Type.Contains("+"))
+                    {
+                        string[] tmpArray = cacheData.Type.Split('+');
+                        cacheData.Type = tmpArray[0];
+                        nestedTypeName = tmpArray[1];
+                        isNestedType = true;
+                    }
+
+                    var fullTypeName = cacheData.Assembly == "System"
+                        ? cacheData.Type
+                        : String.Format("{0},{1}", cacheData.Type, cacheData.Assembly);
+
+
+                    Type cacheType = Type.GetType(fullTypeName);
+
+                    if (isNestedType)
+                    {
+                        cacheType = cacheType.GetNestedType(nestedTypeName);
+                    }
+
+                    _types.Add(cacheData.Type, cacheType);
+                }
+                if (cacheData.DataType == "LIST")
+                {
+                    var listGenericType = typeof (List<>);
+                    _types.Add(cacheData.Type,
+                        listGenericType.MakeGenericType(GetObjectType(cacheData.Arguments.First())));
+                }
+                if (cacheData.DataType == "DICT")
+                {
+                    var dictGenericType = typeof (Dictionary<,>);
+                    _types.Add(cacheData.Type,
+                        dictGenericType.MakeGenericType(GetObjectType(cacheData.Arguments.First()),
+                            GetObjectType(cacheData.Arguments.Last())));
+                }
+            }
+
+            return _types[cacheData.Type];
         }
 
         #region GET
@@ -158,7 +247,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             var cacheData = cacheItems.First();
 
-            return Serializer.ToObjectDeserialize(cacheData.Data, GetObjectType(cacheData));
+            return Serializer.ToObjectDeserialize(cacheData.Data, GetObjectType(cacheData.DataType));
         }
 
         public T Get<T>(string key)
@@ -201,7 +290,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             var cacheData = cacheItems.First();
 
-            return Serializer.ToObjectDeserialize(cacheItems.First().Data, GetObjectType(cacheData));
+            return Serializer.ToObjectDeserialize(cacheItems.First().Data, GetObjectType(cacheData.DataType));
 
         }
 
@@ -241,7 +330,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             IMongoQuery query = Query.In("_id", new BsonArray(keyList));
 
             IDictionary<string, object> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
-                                                                                             item => Serializer.ToObjectDeserialize(item.Data, GetObjectType(item)));
+                                                                                             item => Serializer.ToObjectDeserialize(item.Data, GetObjectType(item.DataType)));
             foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
             {
                 result.Add(key, null);
@@ -321,7 +410,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             return collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
                                                                     item =>
-                                                                    Serializer.ToObjectDeserialize(item.Data, GetObjectType(item)));
+                                                                    Serializer.ToObjectDeserialize(item.Data, GetObjectType(item.DataType)));
         }
 
 
@@ -336,57 +425,17 @@ namespace EtoolTech.Mongo.KeyValueClient
             MongoCollection collection = PrimaryCollection;
             IMongoQuery query = Query.EQ("_id", key);
 
-            string TypeName = string.Empty;
-            string AssemblyName = string.Empty;
-            string DataType = string.Empty;
+            var cacheType = CreateCacheType(data.GetType());
 
-            var list = data as IList;
-            var dic = data as IDictionary;
-            if (list != null)
-            {
-                var dataType = data.GetType();
-                var itemType = dataType.GetGenericArguments()[0];
-                TypeName = itemType.FullName;
-                AssemblyName = itemType.Assembly.FullName.Split(',')[0].Trim();
-                DataType = "LIST";
-            }
-            else if (dic != null)
-            {
-                DataType = "DICT";
-                var dataType = data.GetType();
-                var itemType = dataType.GetGenericArguments()[0];
-                var list1 = itemType as IList;
-                if (list1 != null)
-                {
-                    itemType = itemType.GetGenericArguments()[0];                    
-                }
-
-                var itemType2 = dataType.GetGenericArguments()[1];
-                var list2 = itemType2 as IList;
-                if (list2 != null)
-                {
-                    itemType2 = itemType.GetGenericArguments()[0];
-                }
-
-                TypeName = itemType.FullName + "," + itemType2.FullName;
-                AssemblyName = itemType.Assembly.FullName.Split(',')[0].Trim() + "," + itemType2.Assembly.FullName.Split(',')[0].Trim();
-               
-            }
-            else
-            {
-                var dataType = data.GetType();
-                TypeName = dataType.FullName;
-                AssemblyName = dataType.Namespace;
-                DataType = "OBJECT";
-            }
-
-            var result = collection.FindAndModify(query, null, Update.Set("Data", Serializer.ObjectToString(data)).Set("Type",TypeName).Set("DataType", DataType).Set("Assembly", AssemblyName), false, true);
+            var cacheData = new CacheData {_id = key, Data = Serializer.ObjectToString(data), DataType = cacheType};
+            var result = collection.Save(cacheData);            
             
-            if (!String.IsNullOrEmpty(result.ErrorMessage))
+            if (result != null && !String.IsNullOrEmpty(result.ErrorMessage))
                 throw new Exception(result.ErrorMessage);
             
             return true;
         }
+ 
 
         public bool Remove(string key)
         {
@@ -473,13 +522,23 @@ namespace EtoolTech.Mongo.KeyValueClient
             [BsonId]
             public string _id { get; set; }
 
+            [BsonElement("d")]
             public string Data { get; set; }
 
+            [BsonElement("dt")]
+            public CacheType DataType { get; set; }
+        }
+
+        public class CacheType
+        {
+            [BsonElement("t")]
             public string Type { get; set; }
-
+            [BsonElement("a")]
             public string Assembly { get; set; }
-
+            [BsonElement("dt")]
             public string DataType { get; set; }
+            [BsonElement("arg")]
+            public List<CacheType> Arguments { get; set; }
         }
 
         #endregion
