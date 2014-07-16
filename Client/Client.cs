@@ -73,7 +73,8 @@ namespace EtoolTech.Mongo.KeyValueClient
                 {
                     if (String.IsNullOrEmpty(_primaryConnectionString))
                     {
-                        _primaryConnectionString = ConnectionString + ";readPreference=primary";
+                        var b = new MongoUrlBuilder(ConnectionString) { ReadPreference = ReadPreference.Primary };
+                        _primaryConnectionString = b.ToMongoUrl().ToString();
                     }
                     return _primaryCol ?? (_primaryCol = GetDb(_primaryConnectionString).GetCollection(_collectionName));
                 }
