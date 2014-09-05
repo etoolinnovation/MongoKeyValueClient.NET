@@ -10,6 +10,13 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
     public class Test
     {
 
+        public void TestPing()
+        {
+            var c = new Client();
+            c.Ping();
+        }
+
+
         [Test]
         public void TestGetForWrite()
         {

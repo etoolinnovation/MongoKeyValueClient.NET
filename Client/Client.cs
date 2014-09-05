@@ -87,8 +87,15 @@ namespace EtoolTech.Mongo.KeyValueClient
             try
             {
                 MongoServer s = GetServer();
-                s.Connect();
-                s.Ping();
+                if (string.IsNullOrEmpty(s.ReplicaSetName))
+                {
+                    s.Instance.Ping();
+                }
+                else
+                {
+                    s.Connect();
+                    s.Instances.First(i => i.IsPrimary).Ping();
+                }
                 return true;
             }
             catch (Exception)
