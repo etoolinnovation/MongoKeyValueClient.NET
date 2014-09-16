@@ -49,7 +49,7 @@
             this.listBoxKeys.Location = new System.Drawing.Point(12, 77);
             this.listBoxKeys.Name = "listBoxKeys";
             this.listBoxKeys.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.listBoxKeys.Size = new System.Drawing.Size(898, 550);
+            this.listBoxKeys.Size = new System.Drawing.Size(898, 472);
             this.listBoxKeys.TabIndex = 0;
             this.listBoxKeys.DoubleClick += new System.EventHandler(this.ListBoxKeysDoubleClick);
             // 

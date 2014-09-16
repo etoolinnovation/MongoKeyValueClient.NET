@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using MongoDB.Driver;
 
@@ -21,12 +22,11 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
 
         private void MongoCacheStatsLoad(object sender, EventArgs e)
         {
-
             if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]))
             {
                 _multiDatabase = true;
                 comboCollections.Items.Add("");
-                var mongoServer = MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]);                
+                var mongoServer = MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]);
                 foreach (string databaseName in mongoServer.GetDatabaseNames())
                 {                    
                     foreach (string collectionName in mongoServer.GetDatabase(databaseName).GetCollectionNames())
@@ -141,15 +141,15 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                     if (this.localFind.Checked)
                     {
                         listBoxKeys.Items.Clear(); 
-                        foreach (var item in _localKeys.Where(k=>k.Contains(textBoxFindKey.Text)))
+                        foreach (var item in _localKeys.Where(k=>k.Contains(textBoxFindKey.Text.ToUpper())))
                         {
                             listBoxKeys.Items.Add(item);
                         }
-                        _localKeys.RemoveAll(k=>!k.Contains(textBoxFindKey.Text));
+                        _localKeys.RemoveAll(k=>!k.Contains(textBoxFindKey.Text.ToUpper()));
                     }
                     else
                     {
-                        var cursor = _client.GetKeysRegex(textBoxFindKey.Text);
+                        var cursor = _client.GetKeysRegex(textBoxFindKey.Text.ToUpper());
                         _localKeys.Clear();
                         foreach (var item in cursor)
                         {

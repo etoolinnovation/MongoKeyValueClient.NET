@@ -142,7 +142,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                     try
                     {
                         var xmlDocument = new XmlDocument();
-                        xmlDocument.LoadXml(xml);
+                        xmlDocument.LoadXml(xml.Replace(@"﻿<?xml version=""1.0"" encoding=""utf-8""?>",""));
                         xmlTextWriter.Formatting = Formatting.Indented;
                         xmlDocument.WriteContentTo(xmlTextWriter);
                         xmlTextWriter.Flush();
