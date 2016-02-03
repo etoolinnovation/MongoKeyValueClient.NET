@@ -1,84 +1,105 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
 
 namespace EtoolTech.Mongo.KeyValueClient
 {
     public class Client
     {
-        private static readonly string ConnectionString =
-            ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"];
-
+        private static readonly string ConnectionString = ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"];
         private static string _dataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
+        private static string _collectionName = ConfigurationManager.AppSettings["CompanyKey"] + ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
 
-        private static string _collectionName = ConfigurationManager.AppSettings["CompanyKey"] +
-                                                ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
+        private static IMongoCollection<CacheData> _col;
+        private static IMongoCollection<CacheData> _primaryCol;
+        private static MongoClientSettings _primaryConnectionSettings;
 
-        private static MongoCollection _col;
-        private static MongoCollection _primaryCol;
-        private static string _primaryConnectionString ;
+        private static bool? _isReplicaSet;
 
-        private static bool? _isReplicaSet = null;
+        private static readonly bool SerializeProtoBuff = ConfigurationManager.AppSettings["MongoKeyValueClient_SerializeProtoBuff"] == "1";
+        private static readonly bool CompresionEnabled = ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1";
+
+        private ISerializer _serializer;
 
         public Client(string preFix = "")
-        {           
+        {
             if (!String.IsNullOrEmpty(preFix))
             {
-                 _dataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
+                _dataBaseName = ConfigurationManager.AppSettings["MongoKeyValueClient_Database"];
                 _collectionName = preFix + ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"];
                 _col = null;
                 _primaryCol = null;
                 _isReplicaSet = null;
+
             }
-           
+            _serializer = SerializeProtoBuff ? (ISerializer) new SerializerProtoBuff() : new SerializerBinary();
         }
 
-
-        public MongoDatabase GetDb(string connectionString = null)
+        public void ChangeSerializer()
         {
-            return GetServer(connectionString).GetDatabase(_dataBaseName);
+            _serializer = SerializeProtoBuff ? (ISerializer) new SerializerBinary() : new SerializerProtoBuff();
         }
 
-        private MongoServer GetServer(string connectionString = null)
+        private IMongoDatabase GetDb(string connectionString = null)
         {
-            var client = new MongoClient(connectionString ?? ConnectionString);
-            return client.GetServer();
+            return GetServer(connectionString, false).GetDatabase(_dataBaseName);
         }
 
-        private MongoCollection Collection
+        private IMongoDatabase GetDb(MongoClientSettings settings)
         {
-            get { return _col ?? (_col = GetDb().GetCollection(_collectionName)); }
+            return GetServer(settings).GetDatabase(_dataBaseName);
         }
 
-        private MongoCollection PrimaryCollection
+        private MongoClient GetServer(string connectionString = null, bool fromPrimary = false)
+        {
+            MongoClientSettings settings = MongoClientSettings.FromUrl(MongoUrl.Create(connectionString ?? ConnectionString));
+            return GetServer(settings, fromPrimary);
+        }
+
+        private MongoClient GetServer(MongoClientSettings settings, bool fromPrimary = false)
+        {
+            if (fromPrimary)
+                settings.ReadPreference = ReadPreference.Primary;
+
+            var client = new MongoClient(settings);
+            return client;
+        }
+
+        private IMongoCollection<CacheData> Collection
+        {
+            get { return _col ?? (_col = GetDb().GetCollection<CacheData>(_collectionName)); }
+        }
+
+        private IMongoCollection<CacheData> PrimaryCollection
         {
             get
             {
                 if (_isReplicaSet == null)
                 {
                     var server = GetServer();
-                    _isReplicaSet = !String.IsNullOrEmpty(server.ReplicaSetName);
+                    _isReplicaSet = !String.IsNullOrEmpty(server.Settings.ReplicaSetName);
                 }
 
                 if (_isReplicaSet == false)
                 {
-                    return _col ?? (_col = GetDb().GetCollection(_collectionName));
-                }
-                else
-                {
-                    if (String.IsNullOrEmpty(_primaryConnectionString))
-                    {
-                        var b = new MongoUrlBuilder(ConnectionString) { ReadPreference = ReadPreference.Primary };
-                        _primaryConnectionString = b.ToMongoUrl().ToString();
-                    }
-                    return _primaryCol ?? (_primaryCol = GetDb(_primaryConnectionString).GetCollection(_collectionName));
+                    return _col ?? (_col = GetDb().GetCollection<CacheData>(_collectionName));
                 }
 
+                if (_primaryConnectionSettings == null)
+                {
+                    var builder = new MongoUrlBuilder(ConnectionString);
+                    MongoUrl url = builder.ToMongoUrl();
+                    _primaryConnectionSettings = MongoClientSettings.FromUrl(url);
+                    _primaryConnectionSettings.ReadPreference = ReadPreference.Primary;
+                }
+
+                return _primaryCol ?? (_primaryCol = GetDb(_primaryConnectionSettings).GetCollection<CacheData>(_collectionName));
             }
         }
 
@@ -86,16 +107,7 @@ namespace EtoolTech.Mongo.KeyValueClient
         {
             try
             {
-                MongoServer s = GetServer();
-                if (string.IsNullOrEmpty(s.ReplicaSetName))
-                {
-                    s.Instance.Ping();
-                }
-                else
-                {
-                    s.Connect();
-                    s.Instances.First(i => i.IsPrimary).Ping();
-                }
+                var s = GetServer();
                 return true;
             }
             catch (Exception)
@@ -104,93 +116,113 @@ namespace EtoolTech.Mongo.KeyValueClient
             }
         }
 
-        public object GetForWrite(string key)
+        public T Get<T>(string key)
         {
-            MongoCollection collection = PrimaryCollection;
-            IMongoQuery query = Query.EQ("_id", key);
+            var collection = Collection;
+            var query = Builders<CacheData>.Filter.Eq("_id", key);
 
-            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+            List<CacheData> cacheItems = collection.Find(query).ToListAsync().Result;
 
             if (!cacheItems.Any())
-                return null;
+                return default(T);
 
-            return Serializer.ToObjectSerialize<object>(cacheItems.First().Data);
-
+            return (T) _serializer.ToObjectSerialize(typeof (T), cacheItems.First().Data);
         }
 
         public object Get(string key)
         {
-            MongoCollection collection = Collection;
-            IMongoQuery query = Query.EQ("_id", key);
+            var collection = Collection;
+            var query = Builders<CacheData>.Filter.Eq("_id", key);
 
-            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+            List<CacheData> cacheItems = collection.Find(query).ToListAsync().Result;
 
             if (!cacheItems.Any())
-                return null;
+                return default(object);
 
-            return Serializer.ToObjectSerialize<object>(cacheItems.First().Data);
+            Type type = (Type)Deserialize(cacheItems.First().Type);
+            return _serializer.ToObjectSerialize(type, cacheItems.First().Data);
         }
 
-
-        public bool Add(string key, object data)
+        public T GetForWrite<T>(string key)
         {
-            MongoCollection collection = PrimaryCollection;
-            IMongoQuery query = Query.EQ("_id", key);
-            var result = collection.FindAndModify(query, null, Update.Set("Data", Serializer.ToByteArray(data)), false, true);
-            
-            if (!String.IsNullOrEmpty(result.ErrorMessage))
-                throw new Exception(result.ErrorMessage);
-            
+            var collection = PrimaryCollection;
+            var query = Builders<CacheData>.Filter.Eq("_id", key);
+
+            List<CacheData> cacheItems = collection.Find(query).ToListAsync().Result;
+
+            if (!cacheItems.Any())
+                return default(T);
+
+            return (T) _serializer.ToObjectSerialize(typeof (T), cacheItems.First().Data);
+        }
+
+        public object GetForWrite(string key)
+        {
+            var collection = PrimaryCollection;
+            var query = Builders<CacheData>.Filter.Eq("_id", key);
+
+            List<CacheData> cacheItems = collection.Find(query).ToListAsync().Result;
+
+            if (!cacheItems.Any())
+                return default(object);
+
+            Type type = (Type)Deserialize(cacheItems.First().Type);
+            return _serializer.ToObjectSerialize(type, cacheItems.First().Data);
+        }
+
+        public bool Add(string key, object data, Type type)
+        {
+            var collection = PrimaryCollection;
+            var query = Builders<CacheData>.Filter.Eq("_id", key);
+
+            collection.FindOneAndUpdateAsync(
+                query, Builders<CacheData>.Update.Set(c => c.Data, _serializer.ToByteArray(data)).Set(c => c.Type, Serialize(type)),
+                new FindOneAndUpdateOptions<CacheData> {IsUpsert = true, ReturnDocument = ReturnDocument.After}).GetAwaiter().GetResult();
+
             return true;
         }
 
         public bool Remove(string key)
         {
-            MongoCollection collection = PrimaryCollection;
-            IMongoQuery query = Query.EQ("_id", key);
-            var result = collection.Remove(query);
-            
-            if (!String.IsNullOrEmpty(result.ErrorMessage))
-                throw new Exception(result.ErrorMessage);
-            
+            var collection = PrimaryCollection;
+            var query = Builders<CacheData>.Filter.Eq("_id", key);
+            collection.FindOneAndDeleteAsync(query, new FindOneAndDeleteOptions<CacheData>()).GetAwaiter().GetResult();
             return true;
         }
 
         public void RemoveAll()
         {
-            MongoCollection collection = PrimaryCollection;
-            collection.RemoveAll();
+            var collection = PrimaryCollection;
+            collection.DeleteManyAsync(new BsonDocument());
         }
 
         public List<string> GetAllKeys()
         {
-            MongoCollection collection = Collection;
-            return collection.FindAllAs<CacheData>().SetFields("_id").ToList().Select(data => data._id).ToList();
+            var collection = Collection;
+            return collection.Find(new BsonDocument()).Project(c => c._id).ToListAsync().Result;
         }
 
-
-        public MongoCursor<CacheData> GetAllKeysAsCursor()
+        public IEnumerable<CacheData> GetAllKeysAsCursor()
         {
-            MongoCollection collection = Collection;
-            return collection.FindAllAs<CacheData>().SetFields("_id");
+            var collection = Collection;
+            return collection.Find(new BsonDocument()).Project<CacheData>(Builders<CacheData>.Projection.Exclude(c => c.Data)).ToListAsync().Result;
         }
 
-        public MongoCursor<CacheData> GetKeysRegex(string pattern)
+        public IEnumerable<CacheData> GetKeysRegex(string pattern)
         {
-            MongoCollection collection = Collection;
-
-            IMongoQuery query = Query.Matches("_id", new BsonRegularExpression(pattern));
-            return collection.FindAs<CacheData>(query).SetFields("_id");
+            var collection = Collection;
+            return collection.Find(Builders<CacheData>.Filter.Regex("_id", new BsonRegularExpression(pattern))).Project<CacheData>(Builders<CacheData>
+                             .Projection.Exclude(c => c.Data)).ToListAsync().Result;
         }
 
-        public Dictionary<string,long> GetAllKeysWithSize()
+        public Dictionary<string, long> GetAllKeysWithSize()
         {
-            MongoCollection collection = Collection;
+            var collection = Collection;
             var result = new Dictionary<string, long>();
 
-            foreach (CacheData cacheData in collection.FindAllAs<CacheData>())
+            foreach (CacheData cacheData in collection.Find(new BsonDocument()).ToListAsync().Result)
             {
-                result.Add(cacheData._id, cacheData.Data.LongLength / 1024);
+                result.Add(cacheData._id, cacheData.Data.Length/1024);
             }
 
             return result;
@@ -198,21 +230,43 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         public IDictionary<string, object> Get(List<string> keyList)
         {
-            MongoCollection collection = Collection;
-
-            IMongoQuery query = Query.In("_id", new BsonArray(keyList));
+            IDictionary<string, object> result = new Dictionary<string, object>();
             
+            var query = Builders<CacheData>.Filter.In("_id", keyList);
+            var data = Collection.Find(query).ToListAsync().Result;
 
-            IDictionary<string, object> result = collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
-                                                                                                  item =>
-                                                                                                  Serializer.
-                                                                                                      ToObjectSerialize
-                                                                                                      <object>(item.Data));
-            
-
-            foreach (string key in keyList.Where(key => !result.ContainsKey(key)))
+            foreach (var cacheData in data)
             {
-                result.Add(key, null);
+                Type type = (Type)Deserialize(cacheData.Type);
+                result.Add(cacheData._id, _serializer.ToObjectSerialize(type ?? typeof(object), cacheData.Data));
+            }
+
+            foreach (string key in keyList.Where(Key => !result.ContainsKey(Key)))
+            {
+                result.Add(key, default(object));
+            }
+
+            return result;
+        }
+
+        public IDictionary<string, object> Get(IDictionary<Type, List<string>> keyListByType)
+        {
+            IDictionary<string, object> result = new Dictionary<string, object>();
+            foreach (var keyList in keyListByType)
+            {
+                var query = Builders<CacheData>.Filter.In("_id", keyList.Value);
+
+                var data = Collection.Find(query).ToListAsync().Result;
+
+                foreach (var cacheData in data)
+                {
+                    result.Add(cacheData._id, _serializer.ToObjectSerialize(keyList.Key, cacheData.Data));
+                }
+
+                foreach (string key in keyList.Value.Where(Key => !result.ContainsKey(Key)))
+                {
+                    result.Add(key, default(object));
+                }
             }
 
             return result;
@@ -220,72 +274,79 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         public IDictionary<string, object> GetRegex(string pattern)
         {
-            MongoCollection collection = Collection;
+            var query = Builders<CacheData>.Filter.Regex("_id", new BsonRegularExpression(pattern));
 
-            IMongoQuery query = Query.Matches("_id", new BsonRegularExpression(pattern));
+            var data = Collection.Find(query).ToListAsync().Result;
 
-            return collection.FindAs<CacheData>(query).ToDictionary(item => item._id,
-                                                                    item =>
-                                                                    Serializer.ToObjectSerialize<object>(item.Data));
+            IDictionary<string, object> result = new Dictionary<string, object>();
+
+            foreach (var cacheData in data)
+            {
+                result.Add(cacheData._id, _serializer.ToObjectSerialize(typeof (object), cacheData.Data));
+            }
+
+            return result;
         }
-
-        public T Get<T>(string key)
-        {
-            MongoCollection collection = Collection;
-            IMongoQuery query = Query.EQ("_id", key);
-
-            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
-
-            if (!cacheItems.Any())
-                return default(T);
-
-            return Serializer.ToObjectSerialize<T>(cacheItems.First().Data);
-        }
-
-        public T GetForWrite<T>(string key)
-        {
-            MongoCollection collection = PrimaryCollection;
-            IMongoQuery query = Query.EQ("_id", key);
-
-            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
-
-            if (!cacheItems.Any())
-                return default(T);
-
-            return Serializer.ToObjectSerialize<T>(cacheItems.First().Data);
-        }
-
 
         public long SizeAsKb(string key)
         {
-            MongoCollection collection = Collection;
-            IMongoQuery query = Query.EQ("_id", key);
-            
+            var collection = Collection;
+            var query = Builders<CacheData>.Filter.Eq("_id", key);
 
-            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+            List<CacheData> cacheItems = collection.Find(query).ToListAsync().Result;
 
             if (!cacheItems.Any())
                 return 0;
 
-            return cacheItems.First().Data.LongLength / 1024;
+            return cacheItems.First().Data.LongLength/1024;
         }
-
 
         public long DecompressSizeAsKb(string key)
         {
-            
             if (ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] != "1")
                 return SizeAsKb(key);
 
-            MongoCollection collection = Collection;
-            IMongoQuery query = Query.EQ("_id", key);
+            var collection = Collection;
+            var query = Builders<CacheData>.Filter.Eq("_id", key);
 
-            List<CacheData> cacheItems = collection.FindAs<CacheData>(query).ToList();
+            List<CacheData> cacheItems = collection.Find(query).ToListAsync().Result;
 
             if (!cacheItems.Any())
                 return 0;
-           
-            return Compression.Decompress(cacheItems.First().Data).LongLength / 1024;
+
+            return Compression.Decompress(cacheItems.First().Data).LongLength/1024;
+        }
+
+        public byte[] Serialize(object obj)
+        {
+            if (obj == null) return null;
+
+            byte[] data;
+            using (var ms = new MemoryStream())
+            {
+                var b = new BinaryFormatter();
+                b.Serialize(ms, obj);
+                data = ms.ToArray();
+                ms.Close();
+            }
+            return CompresionEnabled ? Compression.Compress(data) : data;
+        }
+
+        public object Deserialize(byte[] serializedObject)
+        {
+            if (serializedObject == null) return default(object);
+            if (CompresionEnabled) serializedObject = Compression.Decompress(serializedObject);
+
+            object obj;
+            using (var ms = new MemoryStream())
+            {
+                ms.Write(serializedObject, 0, serializedObject.Length);
+                ms.Seek(0, 0);
+                var b = new BinaryFormatter();
+                obj = b.Deserialize(ms);
+                ms.Close();
+            }
+            return obj;
         }
 
         #region Nested type: CacheData
@@ -297,6 +358,8 @@ namespace EtoolTech.Mongo.KeyValueClient
             public string _id { get; set; }
 
             public byte[] Data { get; set; }
+
+            public byte[] Type { get; set; }
         }
 
         #endregion

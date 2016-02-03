@@ -5,12 +5,11 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace EtoolTech.Mongo.KeyValueClient
 {
-    internal class Serializer
+    internal class SerializerBinary : ISerializer
     {
-        private static readonly bool CompresionEnabled =
-            ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1";
+        private static readonly bool CompresionEnabled = ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1";
 
-        internal static byte[] ToByteArray(Object obj)
+        public byte[] ToByteArray(Object obj)
         {
             if (obj == null) return null;
 
@@ -25,13 +24,13 @@ namespace EtoolTech.Mongo.KeyValueClient
             return CompresionEnabled ? Compression.Compress(data) : data;
         }
 
-        internal static T ToObjectSerialize<T>(byte[] serializedObject)
+        public object ToObjectSerialize(Type type, byte[] serializedObject)
         {
-            if (serializedObject == null) return default(T);
+            if (serializedObject == null) return default(object);
 
             if (CompresionEnabled) serializedObject = Compression.Decompress(serializedObject);
 
-            Object obj;
+            object obj;
             using (var ms = new MemoryStream())
             {
                 ms.Write(serializedObject, 0, serializedObject.Length);
@@ -40,7 +39,7 @@ namespace EtoolTech.Mongo.KeyValueClient
                 obj = b.Deserialize(ms);
                 ms.Close();
             }
-            return (T) obj;
+            return obj;
         }
     }
 }

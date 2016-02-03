@@ -77,7 +77,6 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             return jpp.PrettyPrint(json);
         }
 
-
         private void AddColouredText(string strTextToAdd)
         {
             richTbXml.Clear();

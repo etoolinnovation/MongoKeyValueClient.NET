@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using MongoDB.Driver;
 
@@ -20,17 +19,27 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
             InitializeComponent();
         }
 
+        private MongoClient GetServer(string connectionString)
+        {
+            MongoClientSettings settings = MongoClientSettings.FromUrl(MongoUrl.Create(connectionString));
+            var client = new MongoClient(settings);
+            return client;
+        }
+
         private void MongoCacheStatsLoad(object sender, EventArgs e)
         {
+            var mongoServer = GetServer(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]);
             if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]))
             {
                 _multiDatabase = true;
                 comboCollections.Items.Add("");
-                var mongoServer = MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]);
-                foreach (string databaseName in mongoServer.GetDatabaseNames())
-                {                    
-                    foreach (string collectionName in mongoServer.GetDatabase(databaseName).GetCollectionNames())
+
+                foreach (var databaseDocument in mongoServer.ListDatabasesAsync().Result.ToListAsync().Result)
+                {
+                    string databaseName = databaseDocument["name"].AsString;
+                    foreach (var collectionDocument in mongoServer.GetDatabase(databaseName).ListCollectionsAsync().Result.ToListAsync().Result)
                     {
+                        string collectionName = collectionDocument["name"].AsString;
                         if (collectionName.EndsWith(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]))
                         {
                             string preFix = collectionName.Replace(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"], "");
@@ -41,8 +50,8 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                             }
                         }
                     }
-            
                 }
+                
                 comboCollections.SelectedIndex = 0;
             }
             else
@@ -50,16 +59,11 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                 if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["PrefixCollection"]))
                 {
                     comboCollections.Items.Add("");
-                    foreach (
-                        string collectionName in
-                            MongoServer.Create(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]).
-                                GetDatabase(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]).
-                                GetCollectionNames())
+                    foreach (var collectionDocument in mongoServer.GetDatabase(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]).ListCollectionsAsync().Result.ToListAsync().Result)
                     {
+                        string collectionName = collectionDocument["name"].AsString;
                         if (collectionName.EndsWith(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"]))
-                            comboCollections.Items.Add(
-                                collectionName.Replace(
-                                    ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"], ""));
+                            comboCollections.Items.Add(collectionName.Replace(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"], ""));
                     }
 
                     comboCollections.SelectedIndex = 0;
@@ -67,9 +71,7 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                 else
                 {
                     comboCollections.Items.Add("");
-                    foreach (
-                        string companyKey in
-                            ConfigurationManager.AppSettings["PrefixCollection"].Split('|'))
+                    foreach (string companyKey in ConfigurationManager.AppSettings["PrefixCollection"].Split('|'))
                     {
                         comboCollections.Items.Add(companyKey);
                     }
