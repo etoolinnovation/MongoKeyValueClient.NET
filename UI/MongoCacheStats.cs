@@ -180,7 +180,9 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         {
             string constr = ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"];
             constr = constr.Replace("mongodb://", "");
-            constr = constr.Substring(0, constr.IndexOf("/", StringComparison.Ordinal));
+
+            if (constr.Contains("/"))
+                constr = constr.Substring(0, constr.IndexOf("/", StringComparison.Ordinal));
 
             string[] servers = constr.Split(',');
             return servers;
