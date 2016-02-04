@@ -102,11 +102,11 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
         {
             c.RemoveAll();
 
-            System.Threading.Tasks.Parallel.For(0, 10000, index => c.Add(index.ToString(), index , typeof(int)));
+            System.Threading.Tasks.Parallel.For(0, 1000, index => c.Add(index.ToString(), index , typeof(int)));
 
             List<string> keys = c.GetAllKeys();
 
-            Assert.AreEqual(10000, keys.Count);
+            Assert.AreEqual(1000, keys.Count);
 
             foreach (string key in keys)
             {
@@ -136,8 +136,8 @@ namespace EtoolTech.Mongo.KeyValueClient.Test.NUnit
         {
             try
             {
-                List<string> keys = new List<string>(5000010);
-                System.Threading.Tasks.Parallel.For(0, 5000000, index => keys.Add("THIS_IS_A_CACHE_KAYE" + index.ToString()));
+                List<string> keys = new List<string>(5010);
+                System.Threading.Tasks.Parallel.For(0, 5000, index => keys.Add("THIS_IS_A_CACHE_KAYE" + index.ToString()));
 
                 c.Get(keys);
             }

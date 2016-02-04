@@ -34,8 +34,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="protobuf-net">
-      <HintPath>..\Client\bin\Debug\protobuf-net.dll</HintPath>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -56,7 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Client\EtoolTech.Mongo.KeyValueClient.csproj">
-      <Project>{77553CD1-6DA2-4E23-9E0C-4EA26945E7BE}</Project>
+      <Project>{77553cd1-6da2-4e23-9e0c-4ea26945e7be}</Project>
       <Name>EtoolTech.Mongo.KeyValueClient</Name>
     </ProjectReference>
   </ItemGroup>
