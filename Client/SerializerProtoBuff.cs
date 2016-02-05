@@ -4,7 +4,7 @@ using System.IO;
 
 namespace EtoolTech.Mongo.KeyValueClient
 {
-    internal class SerializerProtoBuff : ISerializer
+    internal class SerializerProtoBuf : ISerializer
     {
         private static readonly bool CompresionEnabled = ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1";
 

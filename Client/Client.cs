@@ -22,7 +22,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         private static bool? _isReplicaSet;
 
-        private static readonly bool SerializeProtoBuff = ConfigurationManager.AppSettings["MongoKeyValueClient_SerializeProtoBuff"] == "1";
+        private static readonly bool SerializeProtoBuf = ConfigurationManager.AppSettings["MongoKeyValueClient_SerializeProtoBuf"] == "1";
         private static readonly bool CompresionEnabled = ConfigurationManager.AppSettings["MongoKeyValueClient_CompressionEnabled"] == "1";
 
         private ISerializer _serializer;
@@ -38,12 +38,12 @@ namespace EtoolTech.Mongo.KeyValueClient
                 _isReplicaSet = null;
 
             }
-            _serializer = SerializeProtoBuff ? (ISerializer) new SerializerProtoBuff() : new SerializerBinary();
+            _serializer = SerializeProtoBuf ? (ISerializer)new SerializerProtoBuf() : new SerializerBinary();
         }
 
         public void ChangeSerializer()
         {
-            _serializer = SerializeProtoBuff ? (ISerializer) new SerializerBinary() : new SerializerProtoBuff();
+            _serializer = SerializeProtoBuf ? (ISerializer)new SerializerBinary() : new SerializerProtoBuf();
         }
 
         private IMongoDatabase GetDb(string connectionString = null)
