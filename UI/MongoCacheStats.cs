@@ -29,11 +29,11 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
         private void MongoCacheStatsLoad(object sender, EventArgs e)
         {
             var mongoServer = GetServer(ConfigurationManager.AppSettings["MongoKeyValueClient_ConnStr"]);
+            List<string> prefixList = new List<string>();
             if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["MongoKeyValueClient_Database"]))
             {
                 _multiDatabase = true;
                 comboCollections.Items.Add("");
-
                 foreach (var databaseDocument in mongoServer.ListDatabasesAsync().Result.ToListAsync().Result)
                 {
                     string databaseName = databaseDocument["name"].AsString;
@@ -45,13 +45,18 @@ namespace EtoolTech.Mongo.KeyValueClient.UI
                             string preFix = collectionName.Replace(ConfigurationManager.AppSettings["MongoKeyValueClient_Collection"], "");
                             if (!_prefixDatabase.ContainsKey(preFix))
                             {
-                                comboCollections.Items.Add(preFix);
+                                prefixList.Add(preFix);
                                 _prefixDatabase.Add(preFix, databaseName);
                             }
                         }
                     }
                 }
-                
+
+                foreach (string prefix in prefixList.OrderBy(prefixName => prefixName))
+                {
+                    comboCollections.Items.Add(prefix);
+                }
+
                 comboCollections.SelectedIndex = 0;
             }
             else
