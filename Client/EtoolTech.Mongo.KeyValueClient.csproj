@@ -51,9 +51,14 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MongoDB.Driver.Core, Version=2.1.0.145, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\MongoDB.Driver.Core.dll</HintPath>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>\\buildserver\references\MongoKeyValue.NET 2.4\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>\\buildserver\references\MongoKeyValue.NET 2.4\MongoDB.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver.Core">
+      <HintPath>\\buildserver\references\MongoKeyValue.NET 2.4\MongoDB.Driver.Core.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\Dependencies\protobuf-net.dll</HintPath>
@@ -62,12 +67,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Configuration" />
-    <Reference Include="MongoDB.Bson">
-      <HintPath>..\Dependencies\MongoDB.Bson.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Driver">
-      <HintPath>..\Dependencies\MongoDB.Driver.dll</HintPath>
-    </Reference>
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>

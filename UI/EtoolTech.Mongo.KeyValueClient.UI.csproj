@@ -58,8 +58,14 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>\\buildserver\references\MongoKeyValue.NET 2.4\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>\\buildserver\references\MongoKeyValue.NET 2.4\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Driver.Core">
-      <HintPath>..\Dependencies\MongoDB.Driver.Core.dll</HintPath>
+      <HintPath>\\buildserver\references\MongoKeyValue.NET 2.4\MongoDB.Driver.Core.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -74,12 +80,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="JsonPrettyPrinterPlus">
       <HintPath>..\Dependencies\JsonPrettyPrinterPlus.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Bson">
-      <HintPath>..\Dependencies\MongoDB.Bson.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Driver">
-      <HintPath>..\Dependencies\MongoDB.Driver.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
