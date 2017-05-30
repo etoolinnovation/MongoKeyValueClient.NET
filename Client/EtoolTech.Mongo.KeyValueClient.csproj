@@ -67,6 +67,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation">
+      <HintPath>\\buildserver\references\MongoKeyValue.NET 2.4\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+    </Reference>
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
