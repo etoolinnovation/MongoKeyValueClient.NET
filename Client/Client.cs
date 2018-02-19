@@ -170,6 +170,28 @@ namespace EtoolTech.Mongo.KeyValueClient
             return _serializer.ToObjectSerialize(type, cacheItems.First().Data);
         }
 
+        public object GetForWrite(List<string> keyList)
+        {
+            IDictionary<string, object> result = new Dictionary<string, object>();
+
+            var collection = PrimaryCollection;
+            var query = Builders<CacheData>.Filter.In("_id", keyList);
+            var data = collection.Find(query).ToListAsync().Result;
+
+            foreach (var cacheData in data)
+            {
+                Type type = (Type)Deserialize(cacheData.Type);
+                result.Add(cacheData._id, _serializer.ToObjectSerialize(type ?? typeof(object), cacheData.Data));
+            }
+
+            foreach (string key in keyList.Where(Key => !result.ContainsKey(Key)))
+            {
+                result.Add(key, default(object));
+            }
+
+            return result;
+        }
+
         public bool Add(string key, object data, Type type)
         {
             var collection = PrimaryCollection;
