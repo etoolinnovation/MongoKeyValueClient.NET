@@ -170,7 +170,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             return _serializer.ToObjectSerialize(type, cacheItems.First().Data);
         }
 
-        public object GetForWrite(List<string> keyList)
+        public IDictionary<string, object> GetForWrite(List<string> keyList)
         {
             IDictionary<string, object> result = new Dictionary<string, object>();
 
