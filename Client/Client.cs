@@ -148,7 +148,7 @@ namespace EtoolTech.Mongo.KeyValueClient
             var collection = PrimaryCollection;
             var query = Builders<CacheData>.Filter.Eq("_id", key);
 
-            List<CacheData> cacheItems = collection.Find(query).ToListAsync().Result;
+            List<CacheData> cacheItems = collection.WithReadPreference(ReadPreference.Primary).Find(query).ToListAsync().Result;
 
             if (!cacheItems.Any())
                 return default(T);
@@ -158,10 +158,10 @@ namespace EtoolTech.Mongo.KeyValueClient
 
         public object GetForWrite(string key)
         {
-            var collection = PrimaryCollection;
+            var collection = Collection;
             var query = Builders<CacheData>.Filter.Eq("_id", key);
 
-            List<CacheData> cacheItems = collection.Find(query).ToListAsync().Result;
+            List<CacheData> cacheItems = collection.WithReadPreference(ReadPreference.Primary).Find(query).ToListAsync().Result;
 
             if (!cacheItems.Any())
                 return default(object);
@@ -176,7 +176,7 @@ namespace EtoolTech.Mongo.KeyValueClient
 
             var collection = PrimaryCollection;
             var query = Builders<CacheData>.Filter.In("_id", keyList);
-            var data = collection.Find(query).ToListAsync().Result;
+            var data = collection.WithReadPreference(ReadPreference.Primary).Find(query).ToListAsync().Result;
 
             foreach (var cacheData in data)
             {
