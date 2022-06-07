@@ -59,6 +59,10 @@ namespace EtoolTech.Mongo.KeyValueClient
         private MongoClient GetServer(string connectionString = null, bool fromPrimary = false)
         {
             MongoClientSettings settings = MongoClientSettings.FromUrl(MongoUrl.Create(connectionString ?? ConnectionString));
+            settings.SslSettings = new SslSettings()
+            {
+                EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12,
+            };
             return GetServer(settings, fromPrimary);
         }
 
@@ -67,8 +71,18 @@ namespace EtoolTech.Mongo.KeyValueClient
             if (fromPrimary)
                 settings.ReadPreference = ReadPreference.Primary;
 
-            var client = new MongoClient(settings);
-            return client;
+            try
+            {
+                var client = new MongoClient(settings);
+
+                return client;
+            }
+            catch (Exception ex)
+            {
+                string message = String.Format("Error en MonhoKeyValueClient.dll: {0} \n\r{1}", ex.Message, ex.StackTrace);
+                throw new Exception(message);
+            }
+
         }
 
         private IMongoCollection<CacheData> Collection
